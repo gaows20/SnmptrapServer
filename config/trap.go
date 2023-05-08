@@ -9,5 +9,6 @@ type TrapServer struct {
 	Timeout         int64  `mapstructure:"timeout" json:"timeout" yaml:"timeout"`
 	Maxoids         int64  `mapstructure:"maxoids" json:"maxoids" yaml:"maxoids"`
 	MibMapFile      string `mapstructure:"mib_map_file" json:"mib_map_file" yaml:"mib_map_file"`
+	H3cMibMapFile   string `mapstructure:"h3c_mib_map_file" json:"h3c_mib_map_file" yaml:"h3c_mib_map_file"`
 	BlackMibMapFile string `mapstructure:"black_mib_map_file" json:"black_mib_map_file" yaml:"black_mib_map_file"`
 }

@@ -12,6 +12,7 @@ TrapServer:
   timeout: 2 #seconds
   maxoids: 60
   mib_map_file: "miblist.txt"
+  h3c_mib_map_file: "mib_tree/H3C/h3c_new_style.txt"
   black_mib_map_file: "blackmiblist.txt"
 ApiServer:
   api_port: 8070 # apiserver的监听端口
