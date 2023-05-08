@@ -1,0 +1,31 @@
+LOGCONF:
+  level: info
+  format: text
+  director: logs
+  link-name: current.log
+TrapServer:
+  ip: "0.0.0.0"
+  port: 161
+  version: "v2c" #v1, v2c, v3
+  community: "public"
+  timeout: 2 #seconds
+  maxoids: 60
+  mib_map_file: "miblist.txt"
+  black_mib_map_file: "blackmiblist.txt"
+ApiServer:
+  api_port: 8070 # apiserver的监听端口
+  api_read_timeout: 5 #apiserver读请求超时时间， 秒
+  api_write_timeout: 5 # apiserver写请求超时时间，秒
+  api_web_root: "./webapp"
+sender:
+  pushgateway_url: "http://127.0.0.1:32000"
+  webhook_url: "http://127.0.0.1:8000/alert_gateway/snmp_trap"
+  job_name: "snmp_trap"
+  # zabbix_host: "10.187.32.8"
+  # zabbix_port: 10051
+  zbx_itme_key: "snmptraper.fallback"
+  # sender_dir: "./zabbix_sender.exe"
+  senders:
+    # - "zabbix"
+    - "pushgateway"
+    - "webhook"

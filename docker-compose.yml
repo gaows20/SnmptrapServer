@@ -1,0 +1,18 @@
+version: "3.3"
+
+services:
+    trap-server:
+      image: registry.cn-hangzhou.aliyuncs.com/netaxe/snmp-trap-server:1.0
+      build:
+          context: .
+          dockerfile: Dockerfile
+      ports:
+          - 10162:162/udp
+          - 8070:8070
+      volumes:
+          - ./config.yml:/go/src/app/config.yml
+          - ./miblist.txt:/go/src/app/miblist.txt
+          - ./blackmiblist.txt:/go/src/app/blackmiblist.txt
+      network_mode: "host"
+      restart: always
+

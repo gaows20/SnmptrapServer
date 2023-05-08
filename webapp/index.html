@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="utf-8" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>SNMP TRAP Server服务程序</title>
+    <script  src="/static/jquery/jquery-3.5.1.min.js"></script>
+    <link href="/static/bootstrap-4.4.1-dist/css/bootstrap.css" rel="stylesheet">
+    <script  src="/static/bootstrap-4.4.1-dist/js/bootstrap.js"></script>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-header">
+                    <h1>SNMP TRAP Server管理后台<small>cqrcb system</small></h1>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="accordion" id="accordionExample">
+                    {{range $ip, $list := .}}
+                        <div class="card">
+                            <div class="card-header" id="headingOne">
+                                <h2 class="mb-0">
+                                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne_{{Replace $ip}}" aria-expanded="false" aria-controls="collapseOne">
+                                        {{$ip}}
+                                    </button>
+                                </h2>
+                            </div>
+
+                            <div id="collapseOne_{{Replace $ip}}" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                                <div class="card-body">
+                                        <table class="table">
+                                            <thead class="thead-dark">
+                                            <tr>
+                                                <th scope="col">编号</th>
+                                                <th scope="col">消息</th>
+                                                <th scope="col">操作(OP)</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {{range $i,  $pdu := $list}}
+                                                <tr>
+                                                    <th scope="row">{{$i}}</th>
+                                                    <td>{{$pdu}}</td>
+                                                    <td><button type="button" class="btn btn-danger" id="delbtn" onclick="hello( {{$ip}}, {{ $i }})">删除</button></td>
+                                                </tr>
+                                            {{ end }}
+                                            </tbody>
+                                        </table>
+                                </div>
+                            </div>
+                        </div>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+    function hello(host, index) {
+        var r = confirm("确定删除[" + host + "]第" + index + "行数据?");
+        if (r==true)
+        {
+            $.ajax({
+                //请求方式
+                type : "POST",
+                url : "/delpdu",
+                dataType:"json",
+                //数据，json字符串
+                data : {
+                    ip:host,
+                    index:index
+                },
+                //请求成功
+                success : function(result) {
+                    window.location.href = window.location.href
+                    alert("返回成功消息:"+result)
+                },
+                //请求失败，包含具体的错误信息
+                error : function(e){
+                    alert(e.status);
+                    alert(e.responseText);
+                }
+            });
+        }
+        else
+        {
+            return
+        }
+    }
+</script>
+</body>
+</html>
