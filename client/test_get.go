@@ -6,9 +6,10 @@ package main
 
 import (
 	"fmt"
-	"strings"
+	"os"
 
 	g "github.com/gosnmp/gosnmp"
+	log "github.com/sirupsen/logrus"
 )
 
 func runSnmpGet(target, community, oid string) (string, error) {
@@ -16,9 +17,10 @@ func runSnmpGet(target, community, oid string) (string, error) {
 	var res string = ""
 	g.Default.Target = target
 	g.Default.Community = community
+	// g.Default.Timeout = 5
 	err := g.Default.Connect()
 	if err != nil {
-		fmt.Errorf("Connect() err: %v", err)
+		log.WithField("err", err).Error("runSnmpGet Connect() err:")
 		return "Get() err: %v", err
 	}
 	defer g.Default.Conn.Close()
@@ -49,24 +51,30 @@ func runSnmpGet(target, community, oid string) (string, error) {
 }
 
 func main() {
-	var parseOIDlist map[string]string = map[string]string{"ifIndex": "1.3.6.1.2.1.31.1.1.1.1."}
-	parts := strings.Split("ifIndex.47", ".")
-	res, ok := parseOIDlist[parts[0]]
-	if ok {
-		fmt.Println(res, "存在于 parseOIDlist 中")
-		// res, err := runSnmpGet("10.254.23.47", global.GVA_CONFIG.TrapServer.Community, oid)
-		// if err != nil {
-		// 	log.Fatalf("querySnmp() err: %v", err)
-		// }
+	args := os.Args[1:]
+	if len(args) == 0 {
+		fmt.Println("Please provide a name")
 	} else {
-		fmt.Println(parts, "不存在于 parseOIDlist 中")
+		target := args[0]
+		community := args[1]
+		oid := "1.3.6.1.2.1.31.1.1.1.1.47"
+		res, err := runSnmpGet(target, community, oid)
+		if err != nil {
+			log.Fatalf("querySnmp() err: %v", err)
+		}
+		fmt.Println(res)
 	}
-	// target := "1.1.1.1"
-	// community := "public"
-	// oid := "1.3.6.1.2.1.31.1.1.1.1.47"
-	// res, err := querySnmp(target, community, oid)
-	// if err != nil {
-	// 	log.Fatalf("querySnmp() err: %v", err)
+	// var parseOIDlist map[string]string = map[string]string{"ifIndex": "1.3.6.1.2.1.31.1.1.1.1."}
+	// parts := strings.Split("ifIndex.47", ".")
+	// res, ok := parseOIDlist[parts[0]]
+	// if ok {
+	// 	fmt.Println(res, "存在于 parseOIDlist 中")
+	// 	// res, err := runSnmpGet("10.254.23.47", global.GVA_CONFIG.TrapServer.Community, oid)
+	// 	// if err != nil {
+	// 	// 	log.Fatalf("querySnmp() err: %v", err)
+	// 	// }
+	// } else {
+	// 	fmt.Println(parts, "不存在于 parseOIDlist 中")
 	// }
-	// fmt.Println(res)
+
 }
