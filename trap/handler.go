@@ -22,7 +22,7 @@ func runSnmpGet(target, community, oid string) (string, error) {
 	var res string = ""
 	g.Default.Target = target
 	g.Default.Community = community
-	g.Default.Timeout = 2
+	g.Default.Timeout = 5
 	err := g.Default.Connect()
 	if err != nil {
 		log.WithField("err", err).Error("runSnmpGet Connect() err:")
@@ -139,6 +139,7 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 				if err != nil {
 					fmt.Printf("querySnmp() err: %v", err)
 					// log.Fatalf("querySnmp() err: %v", err)
+					parse_value = fmt.Sprintf("%v", err)
 				} else {
 					parse_value = get_value
 				}
