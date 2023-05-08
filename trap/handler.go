@@ -138,8 +138,10 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 				get_value, err := runSnmpGet(hostip, global.GVA_CONFIG.TrapServer.ReadCommunity, index_v+parts[1])
 				if err != nil {
 					log.Fatalf("querySnmp() err: %v", err)
+					parse_value = ""
+				} else {
+					parse_value = get_value
 				}
-				parse_value = get_value
 			}
 			pdu := TrapPDU{
 				OID:    oidName,
