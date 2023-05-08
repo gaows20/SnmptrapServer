@@ -8,6 +8,7 @@ TrapServer:
   port: 161
   version: "v2c" #v1, v2c, v3
   community: "public"
+  read_community: "public"
   timeout: 2 #seconds
   maxoids: 60
   mib_map_file: "miblist.txt"
