@@ -137,7 +137,7 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 				// fmt.Println(parts, "存在于 parseOIDlist 中")
 				get_value, err := runSnmpGet(hostip, global.GVA_CONFIG.TrapServer.ReadCommunity, index_v+parts[1])
 				if err != nil {
-					fmt.Printf("querySnmp() err: %v", err)
+					fmt.Printf("querySnmp() err: %v, community: %v", err, global.GVA_CONFIG.TrapServer.ReadCommunity)
 					// log.Fatalf("querySnmp() err: %v", err)
 					parse_value = fmt.Sprintf("%v", err)
 				} else {
