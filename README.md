@@ -34,3 +34,5 @@
 
 查询语法
 machine_snmp_trap_info{job="snmp_trap"}
+
+cp config.yml.bak config.yml
