@@ -13,15 +13,15 @@ var black_mib_tree map[string]string
 
 var black_list_error error
 var once sync.Once
-var senderFunc map[string]func(string, global.PushMessage) error = make(map[string]func(string, global.PushMessage) error)
+var senderFunc map[string]func(string, global.PushMessage, string) error = make(map[string]func(string, global.PushMessage, string) error)
 
 func init() {
-	// senderFunc["zabbix"] = SendToZabbix
+	senderFunc["zabbix"] = SendToZabbix
 	senderFunc["webhook"] = PushWebhooks
 	senderFunc["pushgateway"] = PushMetrics
 }
 
-func Sends(host string, msgheader global.PushMessage) {
+func Sends(host string, msgheader global.PushMessage, msg string) {
 
 	once.Do(func() {
 		black_mib_tree, black_list_error = ReadBlacklist(global.GVA_CONFIG.TrapServer.BlackMibMapFile)
@@ -57,7 +57,7 @@ func Sends(host string, msgheader global.PushMessage) {
 
 	for _, v := range global.GVA_CONFIG.Sender.Senders {
 		if _, ok := senderFunc[v]; ok {
-			if err := senderFunc[v](host, msgheader); err != nil {
+			if err := senderFunc[v](host, msgheader, msg); err != nil {
 				log.WithField("err", err).Error("send trap info error")
 			}
 		} else {

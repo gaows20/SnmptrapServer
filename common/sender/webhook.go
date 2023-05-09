@@ -13,7 +13,7 @@ type Message struct {
 	Host    string              `json:"host"`
 }
 
-func PushWebhooks(host string, msg global.PushMessage) (err error) {
+func PushWebhooks(host string, msg global.PushMessage, msg_info string) (err error) {
 	// fmt.Println(msg)
 	jsonStr, err := json.Marshal(msg)
 	url := global.GVA_CONFIG.Sender.WebhookUrl

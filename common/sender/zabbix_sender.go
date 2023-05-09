@@ -2,9 +2,9 @@ package sender
 
 import (
 	"cqrcsnmpserver/global"
-	"errors"
 	"encoding/binary"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -171,7 +171,7 @@ func (s *Sender) Send(packet *Packet) (res []byte, err error) {
 	return
 }
 
-func SendToZabbix(host string, msg string) (err error){
+func SendToZabbix(host string, msg global.PushMessage, msg_info string) (err error) {
 	env := os.Environ()
 	procAttr := &os.ProcAttr{
 		Env: env,
@@ -181,17 +181,17 @@ func SendToZabbix(host string, msg string) (err error){
 			os.Stderr,
 		},
 	}
-	cmds := make([]string,0,9)
+	cmds := make([]string, 0, 9)
 	cmds = append(cmds, global.GVA_CONFIG.Sender.SenderDir)
-	cmds = append(cmds,"-z")
+	cmds = append(cmds, "-z")
 	cmds = append(cmds, global.GVA_CONFIG.Sender.ZabbixHost)
 	cmds = append(cmds, "-s")
 	cmds = append(cmds, host)
 	cmds = append(cmds, "-k")
 	cmds = append(cmds, global.GVA_CONFIG.Sender.ZbxItmeKey)
 	cmds = append(cmds, "-o")
-	cmds = append(cmds, msg)
-	_, err = os.StartProcess( global.GVA_CONFIG.Sender.SenderDir, cmds, procAttr)
+	cmds = append(cmds, msg_info)
+	_, err = os.StartProcess(global.GVA_CONFIG.Sender.SenderDir, cmds, procAttr)
 	if err != nil {
 		return errors.New(fmt.Sprintf("Error %v starting process!", err)) //
 
