@@ -15,6 +15,10 @@ import (
 )
 
 var parseOIDlist map[string]string = map[string]string{"ifIndex": "1.3.6.1.2.1.31.1.1.1.1."}
+var valueMap map[string]map[string]string = map[string]map[string]string{
+	"ifOperStatus":  {"1": "up", "2": "down", "3": "testing"},
+	"ifAdminStatus": {"1": "up", "2": "down", "3": "testing"},
+}
 
 // snmp get实现
 func runSnmpGet(target, community, oid string) (string, error) {
@@ -130,6 +134,7 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 			pdus = append(pdus, &pdu)
 		default:
 			// 额外解析字段，这里将把ifIndex字段翻译成ifName最后填入ParseValue
+			value := v.Value
 			parse_value := ""
 			parts := strings.Split(oidName, ".")
 			index_v, ok := parseOIDlist[parts[0]]
@@ -144,11 +149,17 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 					parse_value = get_value
 				}
 			}
+			// 值映射 value map
+			map_v, ok := valueMap[parts[0]]
+			if ok {
+				value = map_v[fmt.Sprintf("%v", v.Value)]
+			}
+
 			pdu := TrapPDU{
 				OID:    oidName,
 				RawOID: v.Name,
 				Type:   v.Type,
-				Value:  v.Value,
+				Value:  value,
 				// Ts:    time.Now().Format("2006-01-02 :04:05"),
 				Ts:         bjTime.Format("2006-01-02 15:04:05"),
 				ParseValue: parse_value,
