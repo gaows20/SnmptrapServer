@@ -191,6 +191,7 @@ func SendToZabbix(host string, msg global.PushMessage, msg_info string) (err err
 	cmds = append(cmds, global.GVA_CONFIG.Sender.ZbxItmeKey)
 	cmds = append(cmds, "-o")
 	cmds = append(cmds, msg_info)
+	fmt.Println(cmds)
 	_, err = os.StartProcess(global.GVA_CONFIG.Sender.SenderDir, cmds, procAttr)
 	if err != nil {
 		return errors.New(fmt.Sprintf("Error %v starting process!", err)) //
