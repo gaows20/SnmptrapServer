@@ -182,7 +182,7 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 	push_msg.MessageID = fmt.Sprintf("%v", packet.MsgID)
 	push_msg.Index = fmt.Sprintf("%v", packet.ErrorIndex)
 	// sender.Sends(hostip, msg)
-	sender.Sends(hostip, push_msg)
+	sender.Sends(hostip, push_msg, msg)
 }
 
 func paesePdusToListMap(pdus []*TrapPDU) []map[string]string {
