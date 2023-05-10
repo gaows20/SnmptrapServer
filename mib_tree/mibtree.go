@@ -112,19 +112,21 @@ func (n *Node) LoadFile(filepath string) error {
 	br := bufio.NewReader(fi)
 	name := ""
 	oid := ""
+	desc := ""
 	for {
 		a, _, c := br.ReadLine()
 		if c == io.EOF {
 			break
 		}
 		strAry := strings.Fields(string(a))
-		if len(strAry) != 2 {
+		if len(strAry) != 3 {
 			continue
 		} else {
 			name = strings.Trim(strAry[0], "\"")
 			oid = strings.Trim(strAry[1], "\"")
+			desc = strings.Trim(strAry[2], "\"")
 		}
-		n.AddNode(oid, name, "")
+		n.AddNode(oid, name, desc)
 	}
 	return nil
 }
