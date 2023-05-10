@@ -7188,4 +7188,12 @@
 "hh3cStorCriticalLowerTemperatureThresholdNotification"			"1.3.6.1.4.1.25506.10.1.1.3.0.1"
 "hh3cIfMonRxPauseFrameResume"			"1.3.6.1.4.1.25506.2.40.6.0.18"
 "hh3cIpAddrChangeNotify"			"1.3.6.1.4.1.25506.2.90.3.2.0.1"
+"hh3cSSHServerMIBObjects"			"1.3.6.1.4.1.25506.2.22.1.1"
+"hh3cSSHSessionInfoTable"			"1.3.6.1.4.1.25506.2.22.1.1.3"
+"hh3cSSHSessionInfoEntry"			"1.3.6.1.4.1.25506.2.22.1.1.3.1"
+"hh3cSSHSessionID"			"1.3.6.1.4.1.25506.2.22.1.1.3.1.1"
+"hh3cSSHSessionUserName"			"1.3.6.1.4.1.25506.2.22.1.1.3.1.2"
+"hh3cSSHSessionUserIpAddrType"			"1.3.6.1.4.1.25506.2.22.1.1.3.1.3"
+"hh3cSSHSessionUserIpAddr"			"1.3.6.1.4.1.25506.2.22.1.1.3.1.4"
+"hh3cSSHSessionClientVersion"			"1.3.6.1.4.1.25506.2.22.1.1.3.1.5"
 
