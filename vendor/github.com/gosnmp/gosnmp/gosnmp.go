@@ -17,6 +17,7 @@ import (
 	"net"
 	"strconv"
 	"sync/atomic"
+	"syscall"
 	"time"
 )
 
@@ -119,6 +120,14 @@ type GoSNMP struct {
 	// from the address it received the requests on. To work around that,
 	// we open unconnected UDP socket and use sendto/recvfrom.
 	UseUnconnectedUDPSocket bool
+
+	// If Control is not nil, it is called after creating the network
+	// connection but before actually dialing.
+	//
+	// Can be used when UseUnconnectedUDPSocket is set to false or when using TCP
+	// in scenario where specific options on the underlying socket are nedded.
+	// Refer to https://pkg.go.dev/net#Dialer
+	Control func(network, address string, c syscall.RawConn) error
 
 	// LocalAddr is the local address in the format "address:port" to use when connecting an Target address.
 	// If the port parameter is empty or "0", as in
@@ -339,7 +348,7 @@ func (x *GoSNMP) netConnect() error {
 			x.Transport = "tcp4"
 		}
 	}
-	dialer := net.Dialer{Timeout: x.Timeout, LocalAddr: localAddr}
+	dialer := net.Dialer{Timeout: x.Timeout, LocalAddr: localAddr, Control: x.Control}
 	x.Conn, err = dialer.DialContext(x.Context, x.Transport, addr)
 	return err
 }
@@ -356,6 +365,8 @@ func (x *GoSNMP) validateParameters() error {
 	}
 
 	if x.Version == Version3 {
+		// TODO: setting the Reportable flag violates rfc3412#6.4 if PDU is of type SNMPv2Trap.
+		// See if we can do this smarter and remove bitclear fix from trap.go:57
 		x.MsgFlags |= Reportable // tell the snmp server that a report PDU MUST be sent
 
 		err := x.validateParametersV3()
@@ -418,7 +429,7 @@ func (x *GoSNMP) Set(pdus []SnmpPDU) (result *SnmpPacket, err error) {
 	var packetOut *SnmpPacket
 	switch pdus[0].Type {
 	// TODO test Gauge32
-	case Integer, OctetString, Gauge32, IPAddress:
+	case Integer, OctetString, Gauge32, IPAddress, ObjectIdentifier:
 		packetOut = x.mkSnmpPacket(SetRequest, pdus, 0, 0)
 	default:
 		return nil, fmt.Errorf("ERR:gosnmp currently only supports SNMP SETs for Integers, IPAddress and OctetStrings")
