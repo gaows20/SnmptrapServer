@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 type Message struct {
@@ -18,7 +19,7 @@ func PushWebhooks(host string, msg global.PushMessage, msg_info string) (err err
 	jsonStr, err := json.Marshal(msg)
 	url := global.GVA_CONFIG.Sender.WebhookUrl
 	//创建http客户端
-	client := &http.Client{}
+	client := &http.Client{Timeout: time.Second * 10}
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
 	if err != nil {
 		fmt.Println("Error occurred while sending POST request: ", err)
