@@ -16,6 +16,7 @@ type TrapPDU struct {
 	Ts         string      `json:"ts"`
 	RawOID     string      `json:"raw_oid"`
 	ParseValue string      `json:"parse_value"`
+	Desc       string      `json:"desc"`
 }
 
 type TrapServer struct {

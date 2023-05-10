@@ -59,7 +59,7 @@ func (n *Node) AddNode(OID string, name string, desc string) error {
 	return nil
 }
 
-func (n *Node) FindNodeName(OID string) (name string, err error) {
+func (n *Node) FindNodeName(OID string) (name string, desc string, err error) {
 	if strings.HasPrefix(OID, ".") {
 		OID = OID[1:]
 	}
@@ -68,22 +68,22 @@ func (n *Node) FindNodeName(OID string) (name string, err error) {
 	for i := 0; i < len(OIDS); i++ {
 		id := OIDS[i]
 		if _, err := strconv.ParseInt(id, 10, 64); err != nil {
-			return "", errors.New(fmt.Sprintf("[%s]该id不是整型数字;%s", id, err))
+			return "", "", errors.New(fmt.Sprintf("[%s]该id不是整型数字;%s", id, err))
 		}
 
 		if nextNode, ok := curNode.Children[id]; ok {
 			if i == len(OIDS)-1 {
-				return nextNode.Name, nil
+				return nextNode.Name, nextNode.Desc, nil
 			} else {
 				curNode = nextNode
 				continue
 			}
 		} else {
-			return curNode.Name + "." + strings.Join(OIDS[i:], "."), nil
+			return curNode.Name + "." + strings.Join(OIDS[i:], "."), curNode.Desc, nil
 		}
 
 	}
-	return "", errors.New(fmt.Sprintf("have not such oid[%s]", OID))
+	return "", "", errors.New(fmt.Sprintf("have not such oid[%s]", OID))
 }
 
 func (n *Node) Print(depth int64) {

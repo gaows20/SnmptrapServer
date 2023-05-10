@@ -91,11 +91,13 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 	// 迭代解析每一个snmp报文
 	for _, v := range packet.Variables {
 		oidName := ""
-		if name, err := global_mib_tree.FindNodeName(v.Name); err != nil {
+		oidDesc := ""
+		if name, desc, err := global_mib_tree.FindNodeName(v.Name); err != nil {
 			log.WithField("err", err).Error("没有找到OID解析")
 			oidName = v.Name
 		} else {
 			oidName = name
+			oidDesc = desc
 		}
 		switch v.Type {
 		case g.OctetString:
@@ -109,18 +111,21 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 				// Ts:    time.Now().Format("2006-01-02 15:04:05"),
 				Ts:         bjTime.Format("2006-01-02 15:04:05"),
 				ParseValue: "",
+				Desc:       oidDesc,
 			}
 			pdus = append(pdus, &pdu)
 		// 嵌套OID
 		case g.ObjectIdentifier:
 			obj_id := fmt.Sprintf("%s", v.Value)
 			obj_name := ""
+			oidDesc := ""
 			parse_value := ""
-			if name, err := global_mib_tree.FindNodeName(obj_id); err != nil {
+			if name, desc, err := global_mib_tree.FindNodeName(obj_id); err != nil {
 				log.WithField("err", err).Error("trans oid to name error")
 				obj_name = obj_id
 			} else {
 				obj_name = name
+				oidDesc = desc
 			}
 			pdu := TrapPDU{
 				OID:    oidName,
@@ -130,6 +135,7 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 				// Ts:    time.Now().Format("2006-01-02 :04:05"),
 				Ts:         bjTime.Format("2006-01-02 15:04:05"),
 				ParseValue: parse_value,
+				Desc:       oidDesc,
 			}
 			pdus = append(pdus, &pdu)
 		default:
@@ -163,6 +169,7 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 				// Ts:    time.Now().Format("2006-01-02 :04:05"),
 				Ts:         bjTime.Format("2006-01-02 15:04:05"),
 				ParseValue: parse_value,
+				Desc:       oidDesc,
 			}
 			pdus = append(pdus, &pdu)
 		}
@@ -188,7 +195,7 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 func paesePdusToListMap(pdus []*TrapPDU) []map[string]string {
 	res := make([]map[string]string, 0)
 	for _, v := range pdus {
-		res = append(res, map[string]string{"oid": v.OID, "type": fmt.Sprintf("%v", v.Type), "value": fmt.Sprintf("%v", v.Value), "ts": v.Ts, "raw_oid": v.RawOID, "parse_value": v.ParseValue})
+		res = append(res, map[string]string{"oid": v.OID, "type": fmt.Sprintf("%v", v.Type), "value": fmt.Sprintf("%v", v.Value), "ts": v.Ts, "raw_oid": v.RawOID, "parse_value": v.ParseValue, "desc": v.Desc})
 	}
 	return res
 }
