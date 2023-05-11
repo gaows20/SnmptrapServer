@@ -32,7 +32,7 @@ func (n *Node) AddNode(OID string, name string, desc string) error {
 		OID = OID[1:]
 	}
 	OIDS := strings.Split(OID, ".")
-
+	// fmt.Println(OIDS, name, desc)
 	curNode := n
 	for _, id := range OIDS {
 		if _, err := strconv.ParseInt(id, 10, 64); err != nil {
@@ -120,6 +120,7 @@ func (n *Node) LoadFile(filepath string) error {
 		}
 		strAry := strings.Fields(string(a))
 		if len(strAry) != 3 {
+			// fmt.Println(strAry)
 			continue
 		} else {
 			name = strings.Trim(strAry[0], "\"")
