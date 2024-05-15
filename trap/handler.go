@@ -102,7 +102,7 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 		switch v.Type {
 		case g.OctetString:
 			b := v.Value.([]byte)
-			log.WithField("OID", v.Name).WithField("string", fmt.Sprintf("%s", b)).WithField("Type", v.Type).Info()
+			// log.WithField("OID", v.Name).WithField("string", fmt.Sprintf("%s", b)).WithField("Type", v.Type).Info()
 			pdu := TrapPDU{
 				OID:    oidName,
 				RawOID: v.Name,
