@@ -39,7 +39,13 @@ func NewTrapServer(ip, port string) (*TrapServer, error) {
 	tl := g.NewTrapListener()
 	tl.OnNewTrap = BaseTrapHandler
 	var version g.SnmpVersion = g.Version2c
-	log.SetLevel(log.WarnLevel)
+	log.SetFormatter(&log.TextFormatter{
+		TimestampFormat:           "2006-01-02 15:04:05",
+		ForceColors:               true,
+		EnvironmentOverrideColors: true,
+		// FullTimestamp:true,
+		// DisableLevelTruncation:true,
+	})
 	switch global.GVA_CONFIG.TrapServer.Version { //初始化配置文件的Level
 	case "v1":
 		version = g.Version1
