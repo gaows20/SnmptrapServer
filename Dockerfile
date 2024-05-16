@@ -9,7 +9,7 @@ COPY . .
 
 # 编译项目
 RUN go get
-RUN go build -o app main.go  -tags gosnmp_nodebug
+RUN go build -tags gosnmp_nodebug -o app main.go 
 
 EXPOSE 162/udp
 EXPOSE 8070/tcp
