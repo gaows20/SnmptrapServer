@@ -2,10 +2,8 @@ package trap
 
 import (
 	"cqrcsnmpserver/global"
-	"os"
 	"time"
 
-	"github.com/gosnmp/gosnmp"
 	g "github.com/gosnmp/gosnmp"
 	log "github.com/sirupsen/logrus"
 )
@@ -30,7 +28,7 @@ type TrapServer struct {
 
 func NewTrapServer(ip, port string) (*TrapServer, error) {
 	// 关闭gosnmp的debug输出
-	g.Default.Logger = gosnmp.NewLogger(log.New(os.Stdout, "", 0))
+	//g.Default.Logger = gosnmp.NewLogger(log.New(os.Stdout, "", 0))
 	// load mib map file in mibtree
 	if err := global_mib_tree.LoadFile(global.GVA_CONFIG.TrapServer.MibMapFile); err != nil {
 		return nil, err
