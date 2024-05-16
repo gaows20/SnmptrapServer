@@ -7,7 +7,8 @@ import (
 	g "github.com/gosnmp/gosnmp"
 	log "github.com/sirupsen/logrus"
 )
-
+// 关闭gosnmp的debug输出
+g.Default.Logger = gosnmp.NewLogger(log.New(os.Stdout, "", 0))
 type TrapPDU struct {
 	Id         int64       `json:"id"`
 	OID        string      `json:"oid"`
