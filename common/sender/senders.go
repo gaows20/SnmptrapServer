@@ -3,7 +3,6 @@ package sender
 import (
 	"cqrcsnmpserver/global"
 	"fmt"
-	"strings"
 	"sync"
 
 	log "github.com/sirupsen/logrus"
@@ -34,26 +33,26 @@ func Sends(host string, msgheader global.PushMessage, msg string) {
 		fmt.Println("black_mib_tree is empty 黑名单是空的")
 	}
 	// 判断是否在黑名单里
-	for _, item := range msgheader.Message {
-		parts := strings.Split(item["oid"], ".")
-		_, ok := black_mib_tree[parts[0]]
-		if ok {
-			fmt.Println(parts, "存在于 black_mib_tree 中")
-			return
-		} else {
-			fmt.Println(parts, "不存在于 black_mib_tree 中")
-		}
-		if item["type"] == "ObjectIdentifier" {
-			parts := strings.Split(item["value"], ".")
-			_, ok := black_mib_tree[parts[0]]
-			if ok {
-				fmt.Println(parts, "存在于 black_mib_tree 中")
-				return
-			} else {
-				fmt.Println(parts, "不存在于 black_mib_tree 中")
-			}
-		}
-	}
+	// for _, item := range msgheader.Message {
+	// parts := strings.Split(item["oid"], ".")
+	// _, ok := black_mib_tree[parts[0]]
+	// if ok {
+	// 	fmt.Println(parts, "存在于 black_mib_tree 中")
+	// 	return
+	// } else {
+	// 	fmt.Println(parts, "不存在于 black_mib_tree 中")
+	// }
+	// if item["type"] == "ObjectIdentifier" {
+	// 	parts := strings.Split(item["value"], ".")
+	// 	_, ok := black_mib_tree[parts[0]]
+	// 	if ok {
+	// 		fmt.Println(parts, "存在于 black_mib_tree 中")
+	// 		return
+	// 	} else {
+	// 		fmt.Println(parts, "不存在于 black_mib_tree 中")
+	// 	}
+	// }
+	// }
 
 	for _, v := range global.GVA_CONFIG.Sender.Senders {
 		if _, ok := senderFunc[v]; ok {

@@ -27,8 +27,6 @@ type TrapServer struct {
 }
 
 func NewTrapServer(ip, port string) (*TrapServer, error) {
-	// 关闭gosnmp的debug输出
-	//g.Default.Logger = gosnmp.NewLogger(log.New(os.Stdout, "", 0))
 	// load mib map file in mibtree
 	if err := global_mib_tree.LoadFile(global.GVA_CONFIG.TrapServer.MibMapFile); err != nil {
 		return nil, err
@@ -68,6 +66,8 @@ func NewTrapServer(ip, port string) (*TrapServer, error) {
 	}
 	tl.Params = SNMPCONFG
 	tl.Params.Logger = g.NewLogger(log.New())
+	// 关闭gosnmp的debug输出
+	// g.Default.Logger = g.NewLogger(log.New(os.Stdout, "", 0))
 	return &TrapServer{listener: tl,
 		ip:      ip,
 		port:    port,

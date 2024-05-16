@@ -204,7 +204,7 @@ func BaseTrapHandler(packet *g.SnmpPacket, addr *net.UDPAddr) {
 	log.WithField("addr", addr.IP.String()).Info("got trap package from")
 	curList, ok := TrapMap[addr.IP.String()]
 	if ok {
-		log.WithField("address", addr.IP.String()).Info("address is exits.")
+		// log.WithField("address", addr.IP.String()).Info("address is exits.")
 		parseSnmpPack(addr.IP.String(), curList, packet)
 	} else {
 		newList := linklist.NewList()
