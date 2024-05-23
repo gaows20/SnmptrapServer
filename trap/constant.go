@@ -8,6 +8,7 @@ import (
 var (
 	TrapMap         map[string]*linklist.List = make(map[string]*linklist.List)
 	global_mib_tree                           = mib_tree.NewMibTree()
+	// black_mib_tree                            = mib_tree.NewMibTree()
 	// black_mib_tree  map[string]string         = make(map[string]string)
 )
 

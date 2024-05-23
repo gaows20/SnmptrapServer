@@ -4,7 +4,6 @@ import (
 	"cqrcsnmpserver/common/sender"
 	"cqrcsnmpserver/global"
 	"cqrcsnmpserver/linklist"
-	"errors"
 	"fmt"
 	"net"
 	"strings"
@@ -221,7 +220,8 @@ func DelItem(ip string, index int64) error {
 			delete(TrapMap, ip)
 		}
 	} else {
-		return errors.New(fmt.Sprintf("该IP【%s】没有在trap数据库中", ip))
+		return fmt.Errorf("%v", fmt.Sprintf("该IP【%s】没有在trap数据库中", ip))
+		// return errors.New(fmt.Sprintf("该IP【%s】没有在trap数据库中", ip))
 	}
 	return nil
 }

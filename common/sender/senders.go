@@ -22,28 +22,19 @@ func init() {
 
 func Sends(host string, msgheader global.PushMessage, msg string) {
 
-	once.Do(func() {
-		black_mib_tree, black_list_error = ReadBlacklist(global.GVA_CONFIG.TrapServer.BlackMibMapFile)
-		if black_list_error != nil {
-			fmt.Println(black_list_error)
-			return
-		}
-	})
-	if len(black_mib_tree) == 0 {
-		fmt.Println("black_mib_tree is empty 黑名单是空的")
-	}
-	// 判断是否在黑名单里
-	// for _, item := range msgheader.Message {
-	// parts := strings.Split(item["oid"], ".")
-	// _, ok := black_mib_tree[parts[0]]
-	// if ok {
-	// 	fmt.Println(parts, "存在于 black_mib_tree 中")
-	// 	return
-	// } else {
-	// 	fmt.Println(parts, "不存在于 black_mib_tree 中")
+	// once.Do(func() {
+	// 	black_mib_tree, black_list_error = ReadBlacklist(global.GVA_CONFIG.TrapServer.BlackMibMapFile)
+	// 	if black_list_error != nil {
+	// 		fmt.Println(black_list_error)
+	// 		return
+	// 	}
+	// })
+	// if len(black_mib_tree) == 0 {
+	// 	fmt.Println("black_mib_tree is empty 黑名单是空的")
 	// }
-	// if item["type"] == "ObjectIdentifier" {
-	// 	parts := strings.Split(item["value"], ".")
+	// // 判断是否在黑名单里
+	// for _, item := range msgheader.Message {
+	// 	parts := strings.Split(item["oid"], ".")
 	// 	_, ok := black_mib_tree[parts[0]]
 	// 	if ok {
 	// 		fmt.Println(parts, "存在于 black_mib_tree 中")
@@ -51,7 +42,16 @@ func Sends(host string, msgheader global.PushMessage, msg string) {
 	// 	} else {
 	// 		fmt.Println(parts, "不存在于 black_mib_tree 中")
 	// 	}
-	// }
+	// 	if item["type"] == "ObjectIdentifier" {
+	// 		parts := strings.Split(item["value"], ".")
+	// 		_, ok := black_mib_tree[parts[0]]
+	// 		if ok {
+	// 			fmt.Println(parts, "存在于 black_mib_tree 中")
+	// 			return
+	// 		} else {
+	// 			fmt.Println(parts, "不存在于 black_mib_tree 中")
+	// 		}
+	// 	}
 	// }
 
 	for _, v := range global.GVA_CONFIG.Sender.Senders {

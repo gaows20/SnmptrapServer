@@ -6,7 +6,6 @@ import (
 )
 
 func TestAddNode(t *testing.T) {
-
 	mb := NewMibTree()
 	mb.LoadFile("./miblist.txt")
 	//mb.Print(0)
@@ -17,7 +16,6 @@ func TestAddNode(t *testing.T) {
 	} else {
 		fmt.Printf("err is not null:%v\n", err)
 	}
-
 }
 
 // func main() {
