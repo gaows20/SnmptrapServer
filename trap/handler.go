@@ -1,11 +1,13 @@
 package trap
 
 import (
+	"bufio"
 	"cqrcsnmpserver/common/sender"
 	"cqrcsnmpserver/global"
 	"cqrcsnmpserver/linklist"
 	"fmt"
 	"net"
+	"os"
 	"strings"
 	"time"
 
@@ -74,6 +76,43 @@ func genMsgHeader(hostip string, packet *g.SnmpPacket) (msg string) {
 	return msg
 }
 
+// oid黑名单匹配
+func dropOID(OID, Blacklist string) bool {
+	file, err := os.Open(Blacklist)
+	if err != nil {
+		log.WithField("err", err).Error("打开blackmiblist.txt失败")
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	if err := scanner.Err(); err != nil {
+		log.WithField("err", err).Error("读取blackmiblist.txt发生错误")
+	}
+
+	matchlen := 0
+	matchmib := ""
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		parts := strings.Fields(line)
+		if len(parts) < 2 {
+			continue
+		}
+		mib := parts[1][1 : len(parts[1])-1]
+
+		if strings.HasPrefix(OID[1:], mib) {
+			if strings.Count(OID[1:], ".") == strings.Count(mib, ".") && len(OID[1:]) > len(mib) {
+				continue
+			}
+			matchlen = len(mib)
+			if matchlen > len(matchmib) {
+				matchmib = mib
+			}
+		}
+	}
+	return matchlen > 0
+}
+
 // var once sync.Once
 func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 
@@ -89,6 +128,11 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 
 	// 迭代解析每一个snmp报文
 	for _, v := range packet.Variables {
+
+		if Black := dropOID(v.Name, global.GVA_CONFIG.TrapServer.BlackMibMapFile); Black {
+			continue
+		}
+
 		oidName := ""
 		oidDesc := ""
 		if name, desc, err := global_mib_tree.FindNodeName(v.Name); err != nil {

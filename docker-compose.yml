@@ -6,9 +6,9 @@ services:
       build:
           context: .
           dockerfile: Dockerfile
-      ports:
-          - 10162:162/udp
-          - 8070:8070
+#ports:
+#         - 10162:162/udp
+#         - 8070:8070
       volumes:
           - ./config.yml:/go/src/app/config.yml
           - ./miblist.txt:/go/src/app/miblist.txt
