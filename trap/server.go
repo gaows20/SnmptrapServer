@@ -31,6 +31,9 @@ func NewTrapServer(ip, port string) (*TrapServer, error) {
 	if err := global_mib_tree.LoadFile(global.GVA_CONFIG.TrapServer.MibMapFile); err != nil {
 		return nil, err
 	}
+	// if err := black_mib_tree.LoadFile(global.GVA_CONFIG.TrapServer.BlackMibMapFile); err != nil {
+	// 	return nil, err
+	// }
 	// if tmp_black, err := readBlacklist(global.GVA_CONFIG.TrapServer.BlackMibMapFile); err != nil {
 	// 	return nil, err
 	// } else {
