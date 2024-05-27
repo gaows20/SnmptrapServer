@@ -92,6 +92,10 @@ func dropOID(OID, Blacklist string) bool {
 	matchlen := 0
 	matchmib := ""
 
+	if strings.HasPrefix(OID, ".") {
+		OID = OID[1:]
+	}
+
 	for scanner.Scan() {
 		line := scanner.Text()
 		parts := strings.Fields(line)
@@ -100,8 +104,8 @@ func dropOID(OID, Blacklist string) bool {
 		}
 		mib := parts[1][1 : len(parts[1])-1]
 
-		if strings.HasPrefix(OID[1:], mib) {
-			if strings.Count(OID[1:], ".") == strings.Count(mib, ".") && len(OID[1:]) > len(mib) {
+		if strings.HasPrefix(OID, mib) {
+			if strings.Count(OID, ".") == strings.Count(mib, ".") && len(OID[1:]) > len(mib) {
 				continue
 			}
 			matchlen = len(mib)
@@ -129,10 +133,6 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 	// 迭代解析每一个snmp报文
 	for _, v := range packet.Variables {
 
-		if Black := dropOID(v.Name, global.GVA_CONFIG.TrapServer.BlackMibMapFile); Black {
-			continue
-		}
-
 		oidName := ""
 		oidDesc := ""
 		if name, desc, err := global_mib_tree.FindNodeName(v.Name); err != nil {
@@ -156,7 +156,9 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 				ParseValue: "",
 				Desc:       oidDesc,
 			}
-			pdus = append(pdus, &pdu)
+			if drop := dropOID(pdu.RawOID, global.GVA_CONFIG.TrapServer.BlackMibMapFile); !drop {
+				pdus = append(pdus, &pdu)
+			}
 		// 嵌套OID
 		case g.ObjectIdentifier:
 			obj_id := fmt.Sprintf("%s", v.Value)
@@ -180,7 +182,9 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 				ParseValue: parse_value,
 				Desc:       oidDesc,
 			}
-			pdus = append(pdus, &pdu)
+			if drop := dropOID(pdu.RawOID, global.GVA_CONFIG.TrapServer.BlackMibMapFile); !drop {
+				pdus = append(pdus, &pdu)
+			}
 		default:
 			// 额外解析字段，这里将把ifIndex字段翻译成ifName最后填入ParseValue
 			value := v.Value
@@ -214,7 +218,9 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 				ParseValue: parse_value,
 				Desc:       oidDesc,
 			}
-			pdus = append(pdus, &pdu)
+			if drop := dropOID(pdu.RawOID, global.GVA_CONFIG.TrapServer.BlackMibMapFile); !drop {
+				pdus = append(pdus, &pdu)
+			}
 		}
 	}
 	tags := paesePdusToListMap(pdus)
