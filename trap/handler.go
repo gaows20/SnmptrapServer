@@ -156,9 +156,10 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 				ParseValue: "",
 				Desc:       oidDesc,
 			}
-			if drop := dropOID(pdu.RawOID, global.GVA_CONFIG.TrapServer.BlackMibMapFile); !drop {
-				pdus = append(pdus, &pdu)
+			if drop := dropOID(pdu.RawOID, global.GVA_CONFIG.TrapServer.BlackMibMapFile); drop {
+				return
 			}
+			pdus = append(pdus, &pdu)
 		// 嵌套OID
 		case g.ObjectIdentifier:
 			obj_id := fmt.Sprintf("%s", v.Value)
@@ -182,9 +183,10 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 				ParseValue: parse_value,
 				Desc:       oidDesc,
 			}
-			if drop := dropOID(pdu.RawOID, global.GVA_CONFIG.TrapServer.BlackMibMapFile); !drop {
-				pdus = append(pdus, &pdu)
+			if drop := dropOID(pdu.RawOID, global.GVA_CONFIG.TrapServer.BlackMibMapFile); drop {
+				return
 			}
+			pdus = append(pdus, &pdu)
 		default:
 			// 额外解析字段，这里将把ifIndex字段翻译成ifName最后填入ParseValue
 			value := v.Value
@@ -218,9 +220,10 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 				ParseValue: parse_value,
 				Desc:       oidDesc,
 			}
-			if drop := dropOID(pdu.RawOID, global.GVA_CONFIG.TrapServer.BlackMibMapFile); !drop {
-				pdus = append(pdus, &pdu)
+			if drop := dropOID(pdu.RawOID, global.GVA_CONFIG.TrapServer.BlackMibMapFile); drop {
+				return
 			}
+			pdus = append(pdus, &pdu)
 		}
 	}
 	tags := paesePdusToListMap(pdus)
