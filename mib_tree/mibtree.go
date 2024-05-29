@@ -65,6 +65,10 @@ func (n *Node) FindNodeName(OID string) (name string, desc string, err error) {
 	}
 	OIDS := strings.Split(OID, ".")
 	curNode := n
+
+	matchlen := 0
+	matchNode := n
+
 	for i := 0; i < len(OIDS); i++ {
 		id := OIDS[i]
 		if _, err := strconv.ParseInt(id, 10, 64); err != nil {
@@ -72,14 +76,19 @@ func (n *Node) FindNodeName(OID string) (name string, desc string, err error) {
 		}
 
 		if nextNode, ok := curNode.Children[id]; ok {
-			if i == len(OIDS)-1 {
+			if i == len(OIDS)-1 { //匹配到完全一致的oid
 				return nextNode.Name, nextNode.Desc, nil
-			} else {
+			} else { //匹配到前缀一致的oid，记录最近的信息
+				if nextNode.Name != "" {
+					matchlen = i
+					matchNode = nextNode
+				}
 				curNode = nextNode
 				continue
 			}
 		} else {
-			return curNode.Name + "." + strings.Join(OIDS[i:], "."), curNode.Desc, nil
+			//return curNode.Name + "." + strings.Join(OIDS[i:], "."), curNode.Desc, nil
+			return matchNode.Name + "." + strings.Join(OIDS[matchlen+1:], "."), matchNode.Desc, nil
 		}
 
 	}
