@@ -50,4 +50,6 @@
 "syslogMsgNotification"			"1.3.6.1.2.1.192.0.1"
 "hh3cIfMonTxPauseFrameResume"			"1.3.6.1.4.1.25506.2.40.6.0.20"
 "hh3cIfMonTxPauseFrameRising"			"1.3.6.1.4.1.25506.2.40.6.0.19"
+"hh3cIfMonRxPauseFrameResume"			"1.3.6.1.4.1.25506.2.40.6.0.18"
+"hh3cIfMonRxPauseFrameRising"			"1.3.6.1.4.1.25506.2.40.6.0.17"
 "ospfOriginateLsa"			"1.3.6.1.2.1.14.16.2.12"
