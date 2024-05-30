@@ -95,6 +95,7 @@ func dropOID(OID, Blacklist string) bool {
 	if strings.HasPrefix(OID, ".") {
 		OID = OID[1:]
 	}
+	OIDS := strings.Split(OID, ".")
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -105,7 +106,9 @@ func dropOID(OID, Blacklist string) bool {
 		mib := parts[1][1 : len(parts[1])-1]
 
 		if strings.HasPrefix(OID, mib) {
-			if strings.Count(OID, ".") == strings.Count(mib, ".") && len(OID[1:]) > len(mib) {
+			mibcount := strings.Count(mib, ".") + 1
+			nowid := strings.Join(OIDS[:mibcount], ".")
+			if len(nowid) > len(mib) {
 				continue
 			}
 			matchlen = len(mib)
