@@ -14,7 +14,7 @@ func PushMetrics(host string, msg global.PushMessage, msg_info string) (err erro
 	})
 	completionTime.SetToCurrentTime()
 	completionTime.Set(1) // set可以设置任意值（float64）.BasicAuth("admin", "adgasgbsdfgas")
-	pusher := push.New(global.GVA_CONFIG.Sender.PushGatewayUrl, global.GVA_CONFIG.Sender.JobName).Collector(completionTime).Grouping("instance", host
+	pusher := push.New(global.GVA_CONFIG.Sender.PushGatewayUrl, global.GVA_CONFIG.Sender.JobName).Collector(completionTime).Grouping("instance", host)
 	if err := pusher.Push(); err != nil {
 		return err
 	}
