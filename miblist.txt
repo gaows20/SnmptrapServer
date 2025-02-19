@@ -7228,7 +7228,7 @@
 "hwIfMonitorCrcErrorStatistics"			"1.3.6.1.4.1.2011.5.25.41.1.7.1.1.2"   "CRC错包数值"
 "hwIfMonitorCrcErrorThreshold"			"1.3.6.1.4.1.2011.5.25.41.1.7.1.1.2"   "CRC错包告警阈值,默认3，0是无效"
 "hwIfMonitorCrcErrorInterval"			"1.3.6.1.4.1.2011.5.25.41.1.7.1.1.4"   "CRC错包告警间隔时间，单位秒，默认10秒，0是无效"
-"hwIfMonitorName"			"1.3.6.1.4.1.2011.5.25.41.1.7.1.1.19"   "CRC错包接口名"
+"hwIfMonitorName"			"1.3.6.1.4.1.2011.5.25.41.1.7.1.1.19"   "接口名"
 "hwIfMonitorAllStatistics"			"1.3.6.1.4.1.2011.5.25.41.1.7.1.1.29"   "CRC错包状态值"
 "hwUserInfoName"			"1.3.6.1.4.1.2011.5.25.207.1.2.1.1.2"   "用户名"
 "hwUserInfoIpAddr"			"1.3.6.1.4.1.2011.5.25.207.1.2.1.1.3"   "用户登录IP"
@@ -7251,10 +7251,12 @@
 "hh3cIfMonOutputUsageHighThres"			"1.3.6.1.4.1.25506.2.40.5.2.1.1.4"   "带宽利用率高阈值"
 "hh3cIfMonOutputUsageStatistics"			"1.3.6.1.4.1.25506.2.40.5.1.1.1.2"   "出方向带宽利用率"
 "bgpPeerState"  "1.3.6.1.2.1.15.3.1.2"  "bgppeerstate:idle(1),connect(2),active(3),opensent(4),openconfirm(5),established(6)"
-"hwIfMonitorOutputRateRising"   "1.3.6.1.4.1.2011.5.25.41.4.7"    "hw-usg输出流量速率告警"
-"hwIfMonitorInputRateRising"   "1.3.6.1.4.1.2011.5.25.41.4.5"    "hw-usg输入流量速率告警"
+"hwIfMonitorOutputRateRising"   "1.3.6.1.4.1.2011.5.25.41.4.7"    "输出流量速率告警"
+"hwIfMonitorInputRateRising"   "1.3.6.1.4.1.2011.5.25.41.4.5"    "输入流量速率告警"
 "hwIfMonitorOutputRate"   "1.3.6.1.4.1.2011.5.25.41.1.7.1.1.10"    "出端口带宽占用率"
 "hwIfMonitorOutputRateThreshold"   "1.3.6.1.4.1.2011.5.25.41.1.7.1.1.11"    "出端口带宽占用率的告警阈值，缺省值是90"
+"hwIfMonitorInputRate"   "1.3.6.1.4.1.2011.5.25.41.1.7.1.1.8"    "入端口带宽占用率"
+"hwIfMonitorInputRateThreshold"   "1.3.6.1.4.1.2011.5.25.41.1.7.1.1.9"    "入端口带宽占用率的告警阈值，缺省值是90"
 
 
 
