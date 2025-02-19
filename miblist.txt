@@ -7257,6 +7257,8 @@
 "hwIfMonitorOutputRateThreshold"   "1.3.6.1.4.1.2011.5.25.41.1.7.1.1.11"    "出端口带宽占用率的告警阈值，缺省值是90"
 "hwIfMonitorInputRate"   "1.3.6.1.4.1.2011.5.25.41.1.7.1.1.8"    "入端口带宽占用率"
 "hwIfMonitorInputRateThreshold"   "1.3.6.1.4.1.2011.5.25.41.1.7.1.1.9"    "入端口带宽占用率的告警阈值，缺省值是90"
+"hwMflpVlanAlarm"   "1.3.6.1.4.1.2011.5.25.160.3.7"    "Vlan内存在环路告警"
+"hwMflpVlanCfgAlarmReason"   "1.3.6.1.4.1.2011.5.25.160.1.1.1.9"    "被阻塞的原因"
 
 
 
