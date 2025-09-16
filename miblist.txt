@@ -6287,7 +6287,7 @@
 "hh3cEponErrorLLIDFrameRecoverTrap"			"1.3.6.1.4.1.25506.2.42.1.8.0.14"			""
 "hh3cUserIPAllocAlarm"			"1.3.6.1.4.1.25506.2.46.5.0.1"			""
 "hh3cEOCCnuRegExcessTrap"			"1.3.6.1.4.1.25506.2.83.5.0.1"			""
-"hh3cResMonUsedUpNotification"			"1.3.6.1.4.1.25506.2.169.3.0.5"			""
+"hh3cResMonUsedUpNotification"			"1.3.6.1.4.1.25506.2.169.3.0.5"			"剩余硬件资源用尽"
 "hh3cpowerStatusChangedTrap"			"1.3.6.1.4.1.25506.8.36.4.2.1"			""
 "pwDown"			"1.3.6.1.2.1.10.246.0.1"			""
 "mteTriggerRising"			"1.3.6.1.2.1.88.2.0.2"			""
@@ -7150,7 +7150,7 @@
 "hh3cCpuUsageSevereRecoverNotification"			"1.3.6.1.4.1.25506.8.35.12.1.30"			""
 "traceRouteTestCompleted"			"1.3.6.1.2.1.81.0.3"			""
 "hh3cPosSTIMAlarm"			"1.3.6.1.4.1.25506.2.19.2.0.9"			""
-"hh3cIfMonInputUsageRising"			"1.3.6.1.4.1.25506.2.40.6.0.1"			""
+"hh3cIfMonInputUsageRising"			"1.3.6.1.4.1.25506.2.40.6.0.1"			"入方向的带宽利用率大于高门限"
 "hh3cDot11APMtIPChange"			"1.3.6.1.4.1.25506.2.75.2.3.0.10"			""
 "hh3cBrasAccCUUPWarning"			"1.3.6.1.4.1.25506.2.200.6.0.1"			""
 "hh3chgmpStackMemberStatusChange"			"1.3.6.1.4.1.25506.8.7.2.0.3"			""
@@ -7266,6 +7266,10 @@
 "hh3cSSHAttemptIpAddr"   "1.3.6.1.4.1.25506.2.22.1.2.3.0"    "连接失败的用户的IP地址"
 "hh3cCfgFileChange"   "1.3.6.1.4.1.25506.2.4.4.0.5"    "启动的配置文件变化"
 "hh3cCfgFileChangeUI"   "1.3.6.1.4.1.25506.2.4.5.13.0"    "触发配置变更的程序来源"
+"hwLacpMlagPartnerMisconnect"   "1.3.6.1.4.1.2011.5.25.41.3.64"    "M-LAG两端的partner系统ID不一致通告"
+"hwLacpMlagPartnerMisconnectResume"   "1.3.6.1.4.1.2011.5.25.41.3.65"    "M-LAG两端的partner系统ID不一致恢复通告"
+"hwIfMonitorInputRateResume"   "1.3.6.1.4.1.2011.5.25.41.4.6"    "输入流量速率告警恢复"
+"hwNetconfServerSessionStart"   "1.3.6.1.4.1.2011.5.25.217.2.15"    "NETCONF服务器检测到NETCONF会话已经启动"
 
 
 
