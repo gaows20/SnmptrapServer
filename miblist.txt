@@ -7294,6 +7294,10 @@
 "hh3cBgpPeerGRStatusChange"   "1.3.6.1.4.1.25506.2.202.4.0.13"    "BGP邻居的GR状态变化"
 "hh3cBgpVpnRpkiSessionRoaExceed"   "1.3.6.1.4.1.25506.2.202.3.2.0.1"    "从RPKI服务器接收的ROA数量超过限制"
 "hh3cBgpVpnRpkiSessionRoaExceedClear"   "1.3.6.1.4.1.25506.2.202.3.2.0.2"    "从RPKI服务器接收的ROA数量降低到限制以下"
+"hh3cIfMonOutputJamDiscardAlarm"   "1.3.6.1.4.1.25506.2.40.6.0.37"    "接口出方向网络拥塞产生的丢包数超过阈值"
+"hh3cIfMonJamDiscardStatistics"   "1.3.6.1.4.1.25506.2.40.5.1.1.1.15"    "拥塞丢包统计数"
+"hh3cIfMonJamDiscardThres"   "1.3.6.1.4.1.25506.2.40.5.2.1.1.42"    "拥塞丢包阈值"
+"hh3cIfMonJamDiscardInterval"   "1.3.6.1.4.1.25506.2.40.5.2.1.1.43"    "统计拥塞丢包计数的时间间隔"
 
 
 
