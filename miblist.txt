@@ -7349,6 +7349,8 @@
 "hh3cBgpPeerLastError"   "1.3.6.1.4.1.25506.2.202.1.1.2.1.8"    "邻居连接最近一次的错误码和错误字码"
 "hh3cBgpPeerState"   "1.3.6.1.4.1.25506.2.202.1.1.2.1.4"    "邻居的连接状态值:idle(1)connect(2)active(3)opensent(4)openconfirm(5)established(6)"
 "hh3cBgpPeerUnAvaiReason"   "1.3.6.1.4.1.25506.2.202.1.1.2.1.9"    "Bgp邻居down原因"
+"hh3cAggPortLacpNegotiateFailed"   "1.3.6.1.4.1.25506.8.25.0.17"    "动态聚合成员口协商失败"
+"hh3cAggPortLacpNegotiateRecovery"   "1.3.6.1.4.1.25506.8.25.0.18"    "动态聚合成员口协商成功"
 "hillstoneConfigurationChange"   "1.3.6.1.4.1.28557.3.19"    "山石防火墙配置改变"
 "hillstoneCPUStatus"   "1.3.6.1.4.1.28557.3.1"    "山石防火墙CPU利用率达到阈值"
 "hillstoneFANStatus"   "1.3.6.1.4.1.28557.3.2"    "山石防火墙风扇处于absent/warning/fail异常状态"
