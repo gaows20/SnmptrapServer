@@ -7318,6 +7318,7 @@
 "hwLacpMlagPartnerMisconnect"   "1.3.6.1.4.1.2011.5.25.41.3.64"    "M-LAG两端的partner系统ID不一致通告"
 "hwLacpMlagPartnerMisconnectResume"   "1.3.6.1.4.1.2011.5.25.41.3.65"    "M-LAG两端的partner系统ID不一致恢复通告"
 "hwIfMonitorInputRateResume"   "1.3.6.1.4.1.2011.5.25.41.4.6"    "输入流量速率告警恢复"
+"hwNtpStateChangeTrap"   "1.3.6.1.4.1.2011.6.80.2.1"    "NTP同步状态改变"
 "hwNetconfServerSessionStart"   "1.3.6.1.4.1.2011.5.25.217.2.15"    "NETCONF服务器检测到NETCONF会话已经启动"
 "hh3cIfMonOutputJamDiscardResume"   "1.3.6.1.4.1.25506.2.40.6.0.38"    "接口出方向网络拥塞产生的丢包数恢复正常"
 "hh3cMLagPortPeerSelected"   "1.3.6.1.4.1.25506.2.176.2.0.10"    "对端的M-LAG端口选择成员端口"
