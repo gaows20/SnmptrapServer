@@ -7400,6 +7400,7 @@
 "hwBgpPeerState"   "1.3.6.1.4.1.2011.5.25.177.1.1.2.1.5"    "BGP邻居状态:Idle(1),Connect(2),Active(3),Opensent(4),Openconfirm(5),Established(6),Noneg(9)"
 "hwBgpPeerUnAvaiReason"   "1.3.6.1.4.1.2011.5.25.177.1.1.2.1.10"    "邻居Down的原因"
 "hwBgpPeerDescription"   "1.3.6.1.4.1.2011.5.25.177.1.1.2.1.12"    "BGP邻居描述信息"
+"hwIPSecNegoFail"   "1.3.6.1.4.1.2011.6.122.26.6.14"    "IPSec隧道协商失败"
 "hh3cBgpPeerRouteNumThresholdExceed"   "1.3.6.1.4.1.25506.2.202.4.0.1"    "来自BGP邻居的路由数量超过告警阈值"
 "hh3cBgpPeerRouteNumThresholdClear"   "1.3.6.1.4.1.25506.2.202.4.0.2"    "从BGP邻居收到的路由数量降低到告警阈值以下"
 "hh3cBgpPeerRouteExceed"   "1.3.6.1.4.1.25506.2.202.4.0.3"    "从BGP邻居收到的路由数量超过限制"
