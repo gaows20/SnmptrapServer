@@ -63,3 +63,4 @@
 "hh3cNTPSysStateChangeTrap"   "1.3.6.1.4.1.25506.8.22.1.2.0.1"
 "hwUserSshLogout"   "1.3.6.1.4.1.2011.5.25.207.2.6"
 "hwNetconfServerSessionEnd"   "1.3.6.1.4.1.2011.5.25.217.2.16"
+"hwCfgConfigChangeLog"			"1.3.6.1.4.1.2011.6.10.2.17"
