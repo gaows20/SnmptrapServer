@@ -81,3 +81,4 @@
 "hwNtpStateChangeTrap"   "1.3.6.1.4.1.2011.6.80.2.1"
 "hwNtpSynchronizationFailureResume"   "1.3.6.1.4.1.2011.6.80.2.10"
 "hwNtpSysPeerChangeTrap"			"1.3.6.1.4.1.2011.6.80.2.2" 
+"hh3cEntityExtSFPPhony"			"1.3.6.1.4.1.25506.2.6.2.0.11"
