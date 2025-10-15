@@ -73,4 +73,6 @@
 "hwCfgChgNotify"			"1.3.6.1.4.1.2011.5.25.191.3.1"
 "hwLldpInterfaceRemTablesChange"			"1.3.6.1.4.1.2011.5.25.134.2.8"
 "lldpRemTablesChange"			"1.0.8802.1.1.2.0.0.1"
+"hwNtpSynchronizationFailure"   "1.3.6.1.4.1.2011.6.80.2.9"
+"hh3cNTPSysStratumChange"   "1.3.6.1.4.1.25506.8.22.1.2.0.9"
 
