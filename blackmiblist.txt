@@ -78,3 +78,4 @@
 "hwICLogFileStorageThrd"   "1.3.6.1.4.1.2011.5.25.212.2.1"
 "hwIPSecNegoFail"   "1.3.6.1.4.1.2011.6.122.26.6.14"
 "hwCfgB2SOperate"			"1.3.6.1.4.1.2011.6.10.2.6"
+"hwNtpStateChangeTrap"   "1.3.6.1.4.1.2011.6.80.2.1"
