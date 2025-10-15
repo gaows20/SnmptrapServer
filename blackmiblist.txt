@@ -82,3 +82,7 @@
 "hwNtpSynchronizationFailureResume"   "1.3.6.1.4.1.2011.6.80.2.10"
 "hwNtpSysPeerChangeTrap"			"1.3.6.1.4.1.2011.6.80.2.2" 
 "hh3cEntityExtSFPPhony"			"1.3.6.1.4.1.25506.2.6.2.0.11"
+"hh3cNetconfServerSessionStart"			"1.3.6.1.4.1.25506.2.206.2.0.1"	
+"hh3cNetconfServerSessionEnd"			"1.3.6.1.4.1.25506.2.206.2.0.2"
+"hwunknow1"			"1.3.6.1.4.1.2011.5.25.207.2.5"
+"hwCfgManEventlog"			"1.3.6.1.4.1.2011.6.10.2.1"
