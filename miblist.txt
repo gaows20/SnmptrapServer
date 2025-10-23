@@ -6058,6 +6058,8 @@
 "hh3cCuspServerDisconnect"			"1.3.6.1.4.1.25506.2.190.1.2.0.1"			""
 "in"			"1.3.6.1.2.1.14.16.3.1.2"			""
 "hh3cEntityExtTemperatureTooUp"			"1.3.6.1.4.1.25506.2.6.2.0.21"			"实体温度超过停止阈值"
+"hh3cEntityExtTemperature"			"1.3.6.1.4.1.25506.2.6.1.1.1.1.12"			"温度"
+"hh3cEntityExtCriticalTemperatureThreshold"			"1.3.6.1.4.1.25506.2.6.1.1.1.1.17"			"临界阈值温度"
 "hh3cEntityExtInternalLinkWarningOccur"			"1.3.6.1.4.1.25506.2.6.4.0.59"			"内部链路告警"
 "hh3cIfMonTxPauseFrameRising"			"1.3.6.1.4.1.25506.2.40.6.0.19"			""
 "hh3cEponOnuPowerOnTrap"			"1.3.6.1.4.1.25506.2.42.1.8.0.44"			""
