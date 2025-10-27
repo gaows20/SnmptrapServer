@@ -15,10 +15,14 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var parseOIDlist map[string]string = map[string]string{"ifIndex": "1.3.6.1.2.1.31.1.1.1.1."}
+var parseOIDlist map[string]string = map[string]string{
+	"ifIndex":                    "1.3.6.1.2.1.31.1.1.1.1.",
+	"hh3cEntityExtPhysicalIndex": "1.3.6.1.2.1.31.1.1.1.1",
+}
 var valueMap map[string]map[string]string = map[string]map[string]string{
-	"ifOperStatus":  {"1": "up", "2": "down", "3": "testing"},
-	"ifAdminStatus": {"1": "up", "2": "down", "3": "testing"},
+	"ifOperStatus":             {"1": "up", "2": "down", "3": "testing"},
+	"ifAdminStatus":            {"1": "up", "2": "down", "3": "testing"},
+	"hh3cEntityExtErrorStatus": {"1": "up", "2": "down", "3": "testing"},
 }
 
 // snmp get实现
@@ -282,12 +286,12 @@ func DelItem(ip string, index int64) error {
 	return nil
 }
 
-func checkItem(data interface{}, pdu interface{}) bool {
-	d := data.(TrapPDU)
-	p := pdu.(*TrapPDU)
-	if d.OID == p.OID && d.Ts == p.Ts && fmt.Sprintf("%v", d.Value) == fmt.Sprintf("%v", p.Value) && fmt.Sprintf("%v", d.Type) == fmt.Sprintf("%v", p.Type) {
-		return true
-	} else {
-		return false
-	}
-}
+// func checkItem(data interface{}, pdu interface{}) bool {
+// 	d := data.(TrapPDU)
+// 	p := pdu.(*TrapPDU)
+// 	if d.OID == p.OID && d.Ts == p.Ts && fmt.Sprintf("%v", d.Value) == fmt.Sprintf("%v", p.Value) && fmt.Sprintf("%v", d.Type) == fmt.Sprintf("%v", p.Type) {
+// 		return true
+// 	} else {
+// 		return false
+// 	}
+// }
