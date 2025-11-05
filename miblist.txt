@@ -7433,6 +7433,7 @@
 "hh3cMLagPortGlobalUp"   "1.3.6.1.4.1.25506.2.176.2.0.6"    "M-LAG组的状态变为Up"
 "hh3cMLagGroupIdForNotify"   "1.3.6.1.4.1.25506.2.176.2.1.2"    "M-LAG组的标识符"
 "hh3cMLagPortSelected"   "1.3.6.1.4.1.25506.2.176.2.0.7"    "本地的M-LAG端口被选中作为成员端口"
+"hh3cMLagPortGlobalDown"   "1.3.6.1.4.1.25506.2.176.2.0.5"    "M-LAG组的状态变为Down"
 "hh3cEntityExtPhysicalIndex"   "1.3.6.1.4.1.25506.2.6.1.1.1.1.1"    "接口索引"
 "hh3cEntityExtAdminStatus"   "1.3.6.1.4.1.25506.2.6.1.1.1.1.2"    "管理状态"
 "hh3cEntityExtAlarmLight"   "1.3.6.1.4.1.25506.2.6.1.1.1.1.5"    "告警状态"
