@@ -16,8 +16,8 @@ import (
 )
 
 var parseOIDlist map[string]string = map[string]string{
-	"ifIndex":          "1.3.6.1.2.1.31.1.1.1.1.",
-	"hh3cAggPortIndex": "1.3.6.1.4.1.25506.8.25.1.2.1.1",
+	"ifIndex": "1.3.6.1.2.1.31.1.1.1.1.",
+	// "hh3cAggPortIndex": "1.3.6.1.4.1.25506.8.25.1.2.1.1",
 }
 var valueMap map[string]map[string]string = map[string]map[string]string{
 	"ifOperStatus":  {"1": "up", "2": "down", "3": "testing"},
