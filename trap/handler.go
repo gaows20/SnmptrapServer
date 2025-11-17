@@ -150,14 +150,15 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 		}
 		switch v.Type {
 		case g.OctetString:
-			b := v.Value.([]byte)
+			// b := v.Value.([]byte)
 			parse_value := parseOctetStringToIP(v.Value.([]byte))
 			// log.WithField("OID", v.Name).WithField("string", fmt.Sprintf("%s", b)).WithField("Type", v.Type).Info()
 			pdu := TrapPDU{
 				OID:    oidName,
 				RawOID: v.Name,
 				Type:   v.Type,
-				Value:  fmt.Sprintf("%s", b),
+				// Value:  fmt.Sprintf("%s", b),
+				Value: parse_value,
 				// Ts:    time.Now().Format("2006-01-02 15:04:05"),
 				Ts:         bjTime.Format("2006-01-02 15:04:05"),
 				ParseValue: parse_value,
@@ -348,10 +349,6 @@ func formatAsHexString(data []byte) string {
 // 保持向后兼容的函数
 func parseOctetStringToIP(data []byte) string {
 	return ParseOctetString(data)
-}
-
-func bytesToHexString(data []byte) string {
-	return formatAsHexString(data)
 }
 
 // ParseOctetString 通用解析函数，自动识别IP和MAC地址，解析失败返回原有内容
