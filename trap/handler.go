@@ -16,8 +16,8 @@ import (
 )
 
 var parseOIDlist map[string]string = map[string]string{
-	"ifIndex": "1.3.6.1.2.1.31.1.1.1.1.",
-	// "hh3cAggPortIndex": "1.3.6.1.4.1.25506.8.25.1.2.1.1",
+	"ifIndex":          "1.3.6.1.2.1.31.1.1.1.1.",
+	"hh3cAggPortIndex": "1.3.6.1.4.1.25506.8.25.1.2.1.1.",
 }
 var valueMap map[string]map[string]string = map[string]map[string]string{
 	"ifOperStatus":  {"1": "up", "2": "down", "3": "testing"},
@@ -334,17 +334,17 @@ func parseAsMAC(data []byte) string {
 }
 
 // formatAsHexString 将字节数组格式化为十六进制字符串
-func formatAsHexString(data []byte) string {
-	if len(data) == 0 {
-		return ""
-	}
+// func formatAsHexString(data []byte) string {
+// 	if len(data) == 0 {
+// 		return ""
+// 	}
 
-	hexParts := make([]string, len(data))
-	for i, b := range data {
-		hexParts[i] = fmt.Sprintf("%02x", b)
-	}
-	return strings.Join(hexParts, ":")
-}
+// 	hexParts := make([]string, len(data))
+// 	for i, b := range data {
+// 		hexParts[i] = fmt.Sprintf("%02x", b)
+// 	}
+// 	return strings.Join(hexParts, ":")
+// }
 
 // 保持向后兼容的函数
 func parseOctetStringToIP(data []byte) string {
@@ -368,5 +368,6 @@ func ParseOctetString(data []byte) string {
 	}
 
 	// 如果都无法解析，返回原始内容的十六进制表示
-	return formatAsHexString(data)
+	// return formatAsHexString(data)
+	return fmt.Sprintf("%s", data)
 }
