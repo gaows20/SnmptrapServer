@@ -28,6 +28,12 @@ var valueMap map[string]map[string]string = map[string]map[string]string{
 	"hh3cBgpPeerState":         {"1": "idle", "2": "connect", "3": "active", "4": "opensent", "5": "openconfirm", "6": "established"},
 	"hh3cBfdSessState":         {"0": "adminDown", "1": "down", "2": "init", "3": "up"},
 	"hwBgpPeerState":           {"1": "idle", "2": "connect", "3": "active", "4": "opensent", "5": "openconfirm", "6": "established", "9": "Noneg"},
+	"hwBfdSessDiag":            {"0": "无诊断", "1": "控制检测时间超时", "2": "echo功能故障", "3": "邻居会话信号衰落", "4": "转发平面复位", "5": "路径Down", "6": "接路径Down", "7": "管理Down", "8": "反向连接路径Down", "9": "邻居会话信号衰落(接收admindown)"},
+	"hwBfdSessType":            {"1": "static(1)-静态会话", "2": "dynamic(2)-动态会话", "3": "entireDynamic(3)-全部动态会话", "4": "auto(4)-自动会话"},
+	"hwBfdSessDefaultIp":       {"1": "no", "2": "yes"},
+	"hwBfdSessBindType":        {"1": "interfaceIp(1) -BFD for IP绑定接口和对端IP", "2": "peerIp(2) -BFD for IP仅有对端IP", "3": "sourceIp(3) -BFD for IP绑定对端IP和源IP", "4": "ifAndSourceIp(4) -BFD for IP绑定接口、对端IP、和源IP", "5": "fec(5) -BFD for FEC(当前不支持)", "6": "tunnelIf(6) -BFD for Tunnel interface(当前不支持)", "7": "ospf(7) -BFD for OSPF", "8": "isis(8) -BFD for ISIS", "9": "ldpLsp(9) -BFD for LDP-LSP", "10": "staticLsp(10) -BFD for static LSP", "11": "teLsp(11) -BFD for TE-LSP", "12": "teTunnel(12) -BFD for TE-Tunnel", "13": " pw(13) -BFD for PW", "15": "vsiPw(15) -BFD for VSI PW", "21": "ldpTunnel(21) -BFD for LDP-Tunnel", "22": "bgpTunnel(22) -BFD for BGP-Tunnel"},
+	"hwBfdSessPWSecondaryFlag": {"1": "flagMasterPW(主PW)", "2": "flagSecondaryPW(备PW)", "3": "flagNoPW(没有绑定PW)"},
+	"hwBfdSessDiscrAuto":       {"1": "enabled(标识符可以自动分配)", "2": "disabled(标识符不可以自动分配)"},
 }
 
 // snmp get实现
