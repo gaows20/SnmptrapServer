@@ -168,10 +168,10 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 				RawOID: v.Name,
 				Type:   v.Type,
 				// Value:  fmt.Sprintf("%s", b),
-				Value: parse_value,
+				Value: string(b),
 				// Ts:    time.Now().Format("2006-01-02 15:04:05"),
 				Ts:         bjTime.Format("2006-01-02 15:04:05"),
-				ParseValue: string(b),
+				ParseValue: parse_value,
 				Desc:       oidDesc,
 			}
 			if drop := dropOID(pdu.RawOID, global.GVA_CONFIG.TrapServer.BlackMibMapFile); drop {
