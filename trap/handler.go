@@ -20,8 +20,14 @@ var parseOIDlist map[string]string = map[string]string{
 	// "hh3cAggPortIndex": "1.3.6.1.4.1.25506.8.25.1.2.1.1.",
 }
 var valueMap map[string]map[string]string = map[string]map[string]string{
-	"ifOperStatus":  {"1": "up", "2": "down", "3": "testing"},
-	"ifAdminStatus": {"1": "up", "2": "down", "3": "testing"},
+	"ifOperStatus":             {"1": "up", "2": "down", "3": "testing"},
+	"ifAdminStatus":            {"1": "up", "2": "down", "3": "testing"},
+	"hh3cEntityExtAdminStatus": {"1": "notSupported", "2": "locked", "3": "shuttingDown", "4": "unlocked"},
+	"hh3cEntityExtAlarmLight":  {"0": "notSupported", "1": "underRepair", "2": "critical", "3": "major", "4": "minor", "5": "alarmOutstanding", "6": "warning", "7": "indeterminate"},
+	"bgpPeerState":             {"1": "idle", "2": "connect", "3": "active", "4": "opensent", "5": "openconfirm", "6": "established"},
+	"hh3cBgpPeerState":         {"1": "idle", "2": "connect", "3": "active", "4": "opensent", "5": "openconfirm", "6": "established"},
+	"hh3cBfdSessState":         {"0": "adminDown", "1": "down", "2": "init", "3": "up"},
+	"hwBgpPeerState":           {"1": "idle", "2": "connect", "3": "active", "4": "opensent", "5": "openconfirm", "6": "established", "9": "Noneg"},
 }
 
 // snmp get实现
@@ -95,9 +101,7 @@ func dropOID(OID, Blacklist string) bool {
 	matchlen := 0
 	matchmib := ""
 
-	if strings.HasPrefix(OID, ".") {
-		OID = OID[1:]
-	}
+	OID = strings.TrimPrefix(OID, ".")
 	OIDS := strings.Split(OID, ".")
 
 	for scanner.Scan() {
@@ -150,7 +154,7 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 		}
 		switch v.Type {
 		case g.OctetString:
-			// b := v.Value.([]byte)
+			b := v.Value.([]byte)
 			parse_value := parseOctetStringToIP(v.Value.([]byte))
 			// log.WithField("OID", v.Name).WithField("string", fmt.Sprintf("%s", b)).WithField("Type", v.Type).Info()
 			pdu := TrapPDU{
@@ -161,7 +165,7 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 				Value: parse_value,
 				// Ts:    time.Now().Format("2006-01-02 15:04:05"),
 				Ts:         bjTime.Format("2006-01-02 15:04:05"),
-				ParseValue: parse_value,
+				ParseValue: string(b),
 				Desc:       oidDesc,
 			}
 			if drop := dropOID(pdu.RawOID, global.GVA_CONFIG.TrapServer.BlackMibMapFile); drop {
@@ -369,5 +373,5 @@ func ParseOctetString(data []byte) string {
 
 	// 如果都无法解析，返回原始内容的十六进制表示
 	// return formatAsHexString(data)
-	return fmt.Sprintf("%s", data)
+	return string(data)
 }
