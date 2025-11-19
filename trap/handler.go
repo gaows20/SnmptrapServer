@@ -21,6 +21,7 @@ var parseOIDlist map[string]string = map[string]string{
 }
 var valueMap map[string]map[string]string = map[string]map[string]string{
 	"ifOperStatus":             {"1": "up", "2": "down", "3": "testing"},
+	"ipv6IfOperStatus":         {"1": "up", "2": "down", "3": "noIfIdentifier", "4": "unknown", "5": "notPresent"},
 	"ifAdminStatus":            {"1": "up", "2": "down", "3": "testing"},
 	"hh3cEntityExtAdminStatus": {"1": "notSupported", "2": "locked", "3": "shuttingDown", "4": "unlocked"},
 	"hh3cEntityExtAlarmLight":  {"0": "notSupported", "1": "underRepair", "2": "critical", "3": "major", "4": "minor", "5": "alarmOutstanding", "6": "warning", "7": "indeterminate"},
