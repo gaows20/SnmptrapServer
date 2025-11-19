@@ -21,26 +21,6 @@ func main() {
 
 }
 
-// ParseOctetString 通用解析函数，自动识别IP和MAC地址，解析失败返回原有内容
-func ParseOctetString(data []byte) string {
-	if len(data) == 0 {
-		return ""
-	}
-
-	// 尝试解析为IP地址 (IPv4: 4字节, IPv6: 16字节)
-	if ip := parseAsIP(data); ip != "" {
-		return ip
-	}
-
-	// 尝试解析为MAC地址 (6字节)
-	if mac := parseAsMAC(data); mac != "" {
-		return mac
-	}
-
-	// 如果都无法解析，返回原始内容的十六进制表示
-	return formatAsHexString(data)
-}
-
 // parseAsIP 尝试解析为IP地址
 func parseAsIP(data []byte) string {
 	// IPv4: 4字节
@@ -97,5 +77,25 @@ func parseOctetStringToIP(data []byte) string {
 }
 
 func bytesToHexString(data []byte) string {
+	return formatAsHexString(data)
+}
+
+// ParseOctetString 通用解析函数，自动识别IP和MAC地址，解析失败返回原有内容
+func ParseOctetString(data []byte) string {
+	if len(data) == 0 {
+		return ""
+	}
+
+	// 尝试解析为IP地址 (IPv4: 4字节, IPv6: 16字节)
+	if ip := parseAsIP(data); ip != "" {
+		return ip
+	}
+
+	// 尝试解析为MAC地址 (6字节)
+	if mac := parseAsMAC(data); mac != "" {
+		return mac
+	}
+
+	// 如果都无法解析，返回原始内容的十六进制表示
 	return formatAsHexString(data)
 }

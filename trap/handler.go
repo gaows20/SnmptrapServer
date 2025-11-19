@@ -6,8 +6,10 @@ import (
 	"cqrcsnmpserver/global"
 	"cqrcsnmpserver/linklist"
 	"fmt"
+	"math"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -161,6 +163,32 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 			oidDesc = desc
 		}
 		switch v.Type {
+		case g.Integer:
+			// 额外解析字段，这里将把ifIndex字段翻译成ifName最后填入ParseValue
+			value := v.Value
+			parse_value := ""
+			parts := strings.Split(oidName, ".")
+			// 值映射 value map
+			map_v, ok := valueMap[parts[0]]
+			if ok {
+				value = map_v[fmt.Sprintf("%v", v.Value)]
+			}
+			if handler, exists := SpeedValueMap[parts[0]]; exists {
+				parse_value = handler(fmt.Sprintf("%v", v.Value))
+			}
+			pdu := TrapPDU{
+				OID:        oidName,
+				RawOID:     v.Name,
+				Type:       v.Type,
+				Value:      value,
+				Ts:         bjTime.Format("2006-01-02 15:04:05"),
+				ParseValue: parse_value,
+				Desc:       oidDesc,
+			}
+			if drop := dropOID(pdu.RawOID, global.GVA_CONFIG.TrapServer.BlackMibMapFile); drop {
+				return
+			}
+			pdus = append(pdus, &pdu)
 		case g.OctetString:
 			b := v.Value.([]byte)
 			parse_value := parseOctetStringToIP(v.Value.([]byte))
@@ -382,4 +410,34 @@ func ParseOctetString(data []byte) string {
 	// 如果都无法解析，返回原始内容的十六进制表示
 	// return formatAsHexString(data)
 	return string(data)
+}
+
+// 定义处理函数类型（现在接收字符串参数）
+type ValueHandler func(string) string
+
+// 全局value map 处理kbps
+var SpeedValueMap map[string]ValueHandler = map[string]ValueHandler{
+	"hwCurrentStatisticalPeriodRate": convertRateSimple,
+	"hwLastStatisticalPeriodRate":    convertRateSimple,
+}
+
+// convertRateSimple 简单速率转换（直接向上取整）
+func convertRateSimple(kbpsStr string) string {
+	// 将字符串转换为整数
+	kbps, err := strconv.ParseFloat(kbpsStr, 64)
+	if err != nil {
+		// 如果转换失败，返回原始字符串
+		return kbpsStr
+	}
+
+	switch {
+	case kbps >= 1000000: // 转换为Gbps
+		gbps := kbps / 1000000
+		return fmt.Sprintf("%.0fGbps", math.Ceil(gbps))
+	case kbps >= 1000: // 转换为Mbps
+		mbps := kbps / 1000
+		return fmt.Sprintf("%.0fMbps", math.Ceil(mbps))
+	default: // 保持kbps
+		return fmt.Sprintf("%.0fkbps", math.Ceil(kbps))
+	}
 }
