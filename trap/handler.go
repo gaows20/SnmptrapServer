@@ -25,6 +25,7 @@ var valueMap map[string]map[string]string = map[string]map[string]string{
 	"hh3cEntityExtAdminStatus": {"1": "notSupported", "2": "locked", "3": "shuttingDown", "4": "unlocked"},
 	"hh3cEntityExtAlarmLight":  {"0": "notSupported", "1": "underRepair", "2": "critical", "3": "major", "4": "minor", "5": "alarmOutstanding", "6": "warning", "7": "indeterminate"},
 	"bgpPeerState":             {"1": "idle", "2": "connect", "3": "active", "4": "opensent", "5": "openconfirm", "6": "established"},
+	"hh3cBgp4v2PeerState":      {"1": "idle", "2": "connect", "3": "active", "4": "opensent", "5": "openconfirm", "6": "established"},
 	"hh3cBgpPeerState":         {"1": "idle", "2": "connect", "3": "active", "4": "opensent", "5": "openconfirm", "6": "established"},
 	"hh3cBfdSessState":         {"0": "adminDown", "1": "down", "2": "init", "3": "up"},
 	"hwBgpPeerState":           {"1": "idle", "2": "connect", "3": "active", "4": "opensent", "5": "openconfirm", "6": "established", "9": "Noneg"},
