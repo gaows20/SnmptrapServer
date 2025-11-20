@@ -255,18 +255,18 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 			value := v.Value
 			parse_value := ""
 			parts := strings.Split(oidName, ".")
-			// index_v, ok := parseOIDlist[parts[0]]
-			// if ok {
-			// 	// fmt.Println(parts, "存在于 parseOIDlist 中")
-			// 	get_value, err := runSnmpGet(hostip, global.GVA_CONFIG.TrapServer.ReadCommunity, index_v+parts[1])
-			// 	if err != nil {
-			// 		fmt.Printf("querySnmp() err: %v", err)
-			// 		// log.Fatalf("querySnmp() err: %v", err)
-			// 		parse_value = fmt.Sprintf("%v, community: %v", err, global.GVA_CONFIG.TrapServer.ReadCommunity)
-			// 	} else {
-			// 		parse_value = get_value
-			// 	}
-			// }
+			index_v, ok := parseOIDlist[parts[0]]
+			if ok {
+				// fmt.Println(parts, "存在于 parseOIDlist 中")
+				get_value, err := runSnmpGet(hostip, global.GVA_CONFIG.TrapServer.ReadCommunity, index_v+parts[1])
+				if err != nil {
+					fmt.Printf("querySnmp() err: %v", err)
+					// log.Fatalf("querySnmp() err: %v", err)
+					parse_value = fmt.Sprintf("%v, community: %v", err, global.GVA_CONFIG.TrapServer.ReadCommunity)
+				} else {
+					parse_value = get_value
+				}
+			}
 			// 值映射 value map
 			map_v, ok := valueMap[parts[0]]
 			if ok {
