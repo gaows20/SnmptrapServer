@@ -18,8 +18,9 @@ import (
 )
 
 var parseOIDlist map[string]string = map[string]string{
-	"ifIndex":          "1.3.6.1.2.1.31.1.1.1.1.",
-	"hh3cAggPortIndex": "1.3.6.1.2.1.31.1.1.1.1.",
+	// "ifIndex":          "1.3.6.1.2.1.31.1.1.1.1.",
+	"ifIndex":          "1.3.6.1.2.1.2.2.1.2.",
+	"hh3cAggPortIndex": "1.3.6.1.2.1.2.2.1.2.",
 }
 var valueMap map[string]map[string]string = map[string]map[string]string{
 	"ifOperStatus":             {"1": "up", "2": "down", "3": "testing"},
@@ -168,11 +169,25 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 			value := v.Value
 			parse_value := ""
 			parts := strings.Split(oidName, ".")
-			// 值映射 value map
-			map_v, ok := valueMap[parts[0]]
+			// 判断是否要二次snmp-get拿接口
+			index_v, ok := parseOIDlist[parts[0]]
 			if ok {
-				value = map_v[fmt.Sprintf("%v", v.Value)]
+				// fmt.Println(parts, "存在于 parseOIDlist 中")
+				get_value, err := runSnmpGet(hostip, global.GVA_CONFIG.TrapServer.ReadCommunity, index_v+parts[1])
+				if err != nil {
+					fmt.Printf("querySnmp() err: %v", err)
+					// log.Fatalf("querySnmp() err: %v", err)
+					parse_value = fmt.Sprintf("%v, community: %v", err, global.GVA_CONFIG.TrapServer.ReadCommunity)
+				} else {
+					parse_value = get_value
+				}
 			}
+			// 值映射 value map
+			speed_map_v, ok := valueMap[parts[0]]
+			if ok {
+				value = speed_map_v[fmt.Sprintf("%v", v.Value)]
+			}
+			// 速率转换判断
 			if handler, exists := SpeedValueMap[parts[0]]; exists {
 				parse_value = handler(fmt.Sprintf("%v", v.Value))
 			}
@@ -240,18 +255,18 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 			value := v.Value
 			parse_value := ""
 			parts := strings.Split(oidName, ".")
-			index_v, ok := parseOIDlist[parts[0]]
-			if ok {
-				// fmt.Println(parts, "存在于 parseOIDlist 中")
-				get_value, err := runSnmpGet(hostip, global.GVA_CONFIG.TrapServer.ReadCommunity, index_v+parts[1])
-				if err != nil {
-					fmt.Printf("querySnmp() err: %v", err)
-					// log.Fatalf("querySnmp() err: %v", err)
-					parse_value = fmt.Sprintf("%v, community: %v", err, global.GVA_CONFIG.TrapServer.ReadCommunity)
-				} else {
-					parse_value = get_value
-				}
-			}
+			// index_v, ok := parseOIDlist[parts[0]]
+			// if ok {
+			// 	// fmt.Println(parts, "存在于 parseOIDlist 中")
+			// 	get_value, err := runSnmpGet(hostip, global.GVA_CONFIG.TrapServer.ReadCommunity, index_v+parts[1])
+			// 	if err != nil {
+			// 		fmt.Printf("querySnmp() err: %v", err)
+			// 		// log.Fatalf("querySnmp() err: %v", err)
+			// 		parse_value = fmt.Sprintf("%v, community: %v", err, global.GVA_CONFIG.TrapServer.ReadCommunity)
+			// 	} else {
+			// 		parse_value = get_value
+			// 	}
+			// }
 			// 值映射 value map
 			map_v, ok := valueMap[parts[0]]
 			if ok {
