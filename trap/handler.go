@@ -33,6 +33,7 @@ var valueMap map[string]map[string]string = map[string]map[string]string{
 	"hh3cBgpPeerState":         {"1": "idle", "2": "connect", "3": "active", "4": "opensent", "5": "openconfirm", "6": "established"},
 	"hh3cBfdSessState":         {"0": "adminDown", "1": "down", "2": "init", "3": "up"},
 	"hwBgpPeerState":           {"1": "idle", "2": "connect", "3": "active", "4": "opensent", "5": "openconfirm", "6": "established", "9": "Noneg"},
+	"hh3cResMonThresholdUnit":  {"1": "absolute", "2": "percentage"},
 	// "hwBfdSessDiag":            {"0": "无诊断", "1": "控制检测时间超时", "2": "echo功能故障", "3": "邻居会话信号衰落", "4": "转发平面复位", "5": "路径Down", "6": "接路径Down", "7": "管理Down", "8": "反向连接路径Down", "9": "邻居会话信号衰落(接收admindown)"},
 	// "hwBfdSessType":            {"1": "static(1)-静态会话", "2": "dynamic(2)-动态会话", "3": "entireDynamic(3)-全部动态会话", "4": "auto(4)-自动会话"},
 	// "hwBfdSessDefaultIp":       {"1": "no", "2": "yes"},
