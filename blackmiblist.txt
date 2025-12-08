@@ -99,3 +99,4 @@
 "hh3cSSHVersionNegotiationFailure"			"1.3.6.1.4.1.25506.2.22.1.3.0.2"
 "hh3cIfMonGiantRising"			"1.3.6.1.4.1.25506.2.40.6.0.21"
 "hh3cIfMonGiantResume"			"1.3.6.1.4.1.25506.2.40.6.0.22"
+"hh3cARPRatelimitOverspeedTrap"			"1.3.6.1.4.1.25506.2.110.1.1.0.1"
