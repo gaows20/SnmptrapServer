@@ -1,5 +1,5 @@
 # 使用官方Golang镜像作为基础镜像
-FROM golang:1.18.2
+FROM registry.cn-hangzhou.aliyuncs.com/netaxe/golang:1.18.2
 
 # 设置工作目录
 WORKDIR /go/src/app
