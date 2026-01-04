@@ -7769,6 +7769,11 @@
 "hwOpticalPowerResume"   "1.3.6.1.4.1.2011.5.25.129.2.17.2"    "光模块功率恢复正常"
 "hwLacpPDUChange"   "1.3.6.1.4.1.2011.5.25.41.3.35"    "由于PDU更改LACP成员接口的状态从已选择状态更改为未选择"
 "hwLacpPDUChangeResume"   "1.3.6.1.4.1.2011.5.25.41.3.36"    "LACP成员界面的状态从未选择状态更改为选定状态"
+"hwStorageUtilizationRisingAlarm"   "1.3.6.1.4.1.2011.5.25.129.2.6.1"    "物理实体的存储介质使用率超过预警极限告警"
+"hwStorageUtilizationResume"   "1.3.6.1.4.1.2011.5.25.129.2.6.2"    "物理实体的存储介质使用率超过预警极限告警恢复"
+"hwBaseTrapRelativeResource"   "1.3.6.1.4.1.2011.5.25.129.1.4"    "指向另一个相关的资源实体的关键值"
+"hwBaseTrapEventType"   "1.3.6.1.4.1.2011.5.25.129.1.3"    "告警类型"
+"hwBaseTrapReasonDescr"   "1.3.6.1.4.1.2011.5.25.129.1.5"    "描述产生告警的原因"
 "hh3cBgpPeerRouteNumThresholdExceed"   "1.3.6.1.4.1.25506.2.202.4.0.1"    "来自BGP邻居的路由数量超过告警阈值"
 "hh3cBgpPeerRouteNumThresholdClear"   "1.3.6.1.4.1.25506.2.202.4.0.2"    "从BGP邻居收到的路由数量降低到告警阈值以下"
 "hh3cBgpPeerRouteExceed"   "1.3.6.1.4.1.25506.2.202.4.0.3"    "从BGP邻居收到的路由数量超过限制"
@@ -7831,10 +7836,6 @@
 "hillstoneWarningMonitorNodeStatus "   "1.3.6.1.4.1.28557.3.36"    "山石防火墙网络节点延迟和丢包率/服务节点延迟触发预警规则"
 "hillstonePowerStatus "   "1.3.6.1.4.1.28557.3.37"    "山石防火墙电源模块状态变为异常"
 "hillstoneFanError "   "1.3.6.1.4.1.28557.3.38"    "山石防火墙风扇变为absent/warning/fail异常状态"
-
-
-
-
 "hh3cDot11ApStaCurAuthSuccSum"		"1.3.6.1.4.1.25506.2.75.2.2.3.1.7"		""
 "hh3c-secpathT200-M"		"1.3.6.1.4.1.25506.1.424"		""
 "hh3cDot11APLinkStatisEntry"		"1.3.6.1.4.1.25506.2.75.2.2.7.1"		""
