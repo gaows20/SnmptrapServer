@@ -6,195 +6,390 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
 
-func parseMibTxt(filepath string) (map[string]string, error) {
-	// 读取文件内容
-	content, err := ioutil.ReadFile(filepath)
-	if err != nil {
-		return nil, err
-	}
-	// 定义 map
-	var m = make(map[string]string)
-	// 定义正则表达式
-	oidPattern := regexp.MustCompile(`^\.\d+(\.\d+)*$`)
-	namePattern := regexp.MustCompile(`([a-zA-Z][\w-]+)\s+NOTIFICATION-TYPE`)
-	// descPattern := regexp.MustCompile(`DESCRIPTION\s+"(?:[^"\\]|\\.)*"`)
-	// 分割文件内容，按行处理
-	lines := regexp.MustCompile(`\r?\n`).Split(string(content), -1)
-	for i := 0; i < len(lines); i++ {
-		line := lines[i]
-		if oidPattern.MatchString(line) {
-			// 匹配到 OID
-			oid := line
-			i++
-			for i < len(lines) && !oidPattern.MatchString(lines[i]) {
-
-				// 处理 OID 名称和描述信息
-				if namePattern.MatchString(lines[i]) {
-					// fmt.Printf("Description: %s\n\n", lines[i])
-					name := namePattern.FindStringSubmatch(lines[i])[1]
-					// fmt.Printf("OID: %s\nName: %s\n\n", oid, name)
-					i++
-					k := strings.Trim(name, "\"")
-					v := strings.Trim(oid[1:], "\"")
-					m[k] = v
-					// if i < len(lines) && descPattern.MatchString(lines[i]) {
-					// 	// fmt.Printf("Description: %s\n\n", lines[i])
-					// 	desc := descPattern.FindStringSubmatch(lines[i])[1]
-					// 	// 输出结果
-					// 	fmt.Printf("OID: %s\nName: %s\nDescription: %s\n\n", oid, name, desc)
-					// }
-				}
-				i++
-			}
-			i--
-		}
-	}
-	// 创建文件
-	file, err := os.Create("h3c_new_style.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	// 将map写入文件
-	for k, v := range m {
-		line := fmt.Sprintf("\"%s\"			\"%s\"\n", k, v)
-		_, err := file.WriteString(line)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-	return m, nil
+// MibEntry 表示一个 MIB 条目
+type MibEntry struct {
+	Name        string
+	OID         string
+	Description string
 }
 
-// compareAndAppendMibFiles 比较 h3c_new_style.txt 和 miblist.txt 两个文件的差异
-// 如果 h3c_new_style.txt 中有数据不在 miblist.txt 中，则按照 miblist.txt 的格式补充到 miblist.txt 中
-// 参数:
-//   h3cFile: h3c_new_style.txt 文件的路径（相对路径或绝对路径）
-//   miblistFile: miblist.txt 文件的路径（相对路径或绝对路径）
-// 使用示例:
-//   err := compareAndAppendMibFiles("h3c_new_style.txt", "../../miblist.txt")
-func compareAndAppendMibFiles(h3cFile string, miblistFile string) error {
-	// 读取 h3c_new_style.txt 文件
-	h3cContent, err := ioutil.ReadFile(h3cFile)
-	if err != nil {
-		return fmt.Errorf("读取 h3c_new_style.txt 文件失败: %v", err)
+// MibParser 用于解析 MIB 文件
+type MibParser struct {
+	oidMap      map[string]string // 名称到 OID 的映射
+	parentMap   map[string]string // 名称到父 OID 的映射
+	entries     []MibEntry        // 解析出的条目
+	currentFile string            // 当前正在解析的文件
+}
+
+// NewMibParser 创建新的 MIB 解析器
+func NewMibParser() *MibParser {
+	parser := &MibParser{
+		oidMap:    make(map[string]string),
+		parentMap: make(map[string]string),
+		entries:   make([]MibEntry, 0),
 	}
 
-	// 读取 miblist.txt 文件
-	miblistContent, err := ioutil.ReadFile(miblistFile)
-	if err != nil {
-		return fmt.Errorf("读取 miblist.txt 文件失败: %v", err)
+	// 初始化一些已知的基础 OID（H3C 企业 OID）
+	// hh3cCommon 通常映射到 1.3.6.1.4.1.25506
+	parser.oidMap["hh3cCommon"] = "1.3.6.1.4.1.25506"
+
+	return parser
+}
+
+// parseOIDAssignment 解析 OID 赋值语句，如 "name ::= { parent number }"
+func (p *MibParser) parseOIDAssignment(line string) {
+	// 匹配 OBJECT IDENTIFIER 定义: name OBJECT IDENTIFIER ::= { parent number }
+	pattern1 := regexp.MustCompile(`(\w+)\s+OBJECT\s+IDENTIFIER\s*::=\s*\{\s*(\w+)\s+(\d+)\s*\}`)
+	matches := pattern1.FindStringSubmatch(line)
+	if len(matches) == 4 {
+		name := matches[1]
+		parent := matches[2]
+		number := matches[3]
+		p.parentMap[name] = parent + " " + number
+		return
 	}
 
-	// 解析 h3c_new_style.txt，提取 name 和 oid
-	// 格式: "name"			"oid"
-	h3cMap := make(map[string]string) // key: name, value: oid
-	h3cLines := regexp.MustCompile(`\r?\n`).Split(string(h3cContent), -1)
-	for _, line := range h3cLines {
-		line = strings.TrimSpace(line)
-		if line == "" {
-			continue
-		}
-		// 使用正则表达式匹配引号内的内容，更健壮地处理制表符和空格
-		re := regexp.MustCompile(`"([^"]+)"\s+"([^"]+)"`)
-		matches := re.FindStringSubmatch(line)
-		if len(matches) == 3 {
-			name := matches[1]
-			oid := matches[2]
-			if name != "" && oid != "" {
-				h3cMap[name] = oid
-			}
-		}
+	// 匹配简化的 OID 定义: name OBJECT IDENTIFIER ::= { parent }
+	pattern2 := regexp.MustCompile(`(\w+)\s+OBJECT\s+IDENTIFIER\s*::=\s*\{\s*(\w+)\s*\}`)
+	matches = pattern2.FindStringSubmatch(line)
+	if len(matches) == 3 {
+		name := matches[1]
+		parent := matches[2]
+		p.parentMap[name] = parent
+		return
 	}
+}
 
-	// 解析 miblist.txt，提取已存在的 name 和 oid
-	// 格式: "name"			"oid"			"description"
-	existingMap := make(map[string]bool) // key: name+"\t"+oid, value: true
-	miblistLines := regexp.MustCompile(`\r?\n`).Split(string(miblistContent), -1)
-	for _, line := range miblistLines {
-		line = strings.TrimSpace(line)
-		if line == "" {
-			continue
-		}
-		// 使用正则表达式匹配前两个引号内的内容
-		re := regexp.MustCompile(`"([^"]+)"\s+"([^"]+)"`)
-		matches := re.FindStringSubmatch(line)
-		if len(matches) == 3 {
-			name := matches[1]
-			oid := matches[2]
-			if name != "" && oid != "" {
-				// 使用 name 和 oid 作为唯一标识
-				key := name + "\t" + oid
-				existingMap[key] = true
-			}
-		}
-	}
+// parseModuleIdentity 解析 MODULE-IDENTITY 的 OID 定义
+func (p *MibParser) parseModuleIdentity(lines []string, startIdx int) (string, int) {
+	var moduleName string
 
-	// 找出需要补充的数据
-	var toAppend []string
-	for name, oid := range h3cMap {
-		key := name + "\t" + oid
-		if !existingMap[key] {
-			// 按照 miblist.txt 的格式：三列，第三列为空字符串
-			line := fmt.Sprintf("\"%s\"\t\t\"%s\"\t\t\"\"", name, oid)
-			toAppend = append(toAppend, line)
-		}
-	}
-
-	// 如果有需要补充的数据，追加到 miblist.txt
-	if len(toAppend) > 0 {
-		// 以追加模式打开文件
-		file, err := os.OpenFile(miblistFile, os.O_APPEND|os.O_WRONLY, 0644)
-		if err != nil {
-			return fmt.Errorf("打开 miblist.txt 文件失败: %v", err)
-		}
-		defer file.Close()
-
-		writer := bufio.NewWriter(file)
-		// 先写入一个换行，确保新内容从新行开始
-		_, err = writer.WriteString("\n")
-		if err != nil {
-			return fmt.Errorf("写入文件失败: %v", err)
-		}
-
-		// 写入需要补充的数据
-		for _, line := range toAppend {
-			_, err = writer.WriteString(line + "\n")
-			if err != nil {
-				return fmt.Errorf("写入文件失败: %v", err)
-			}
-		}
-
-		err = writer.Flush()
-		if err != nil {
-			return fmt.Errorf("刷新文件缓冲区失败: %v", err)
-		}
-
-		fmt.Printf("成功补充 %d 条数据到 miblist.txt\n", len(toAppend))
+	// 提取模块名称
+	modulePattern := regexp.MustCompile(`(\w+)\s+MODULE-IDENTITY`)
+	if matches := modulePattern.FindStringSubmatch(lines[startIdx]); len(matches) == 2 {
+		moduleName = matches[1]
 	} else {
-		fmt.Println("没有需要补充的数据")
+		return "", startIdx
+	}
+
+	// 查找 ::= { parent number } 行
+	for i := startIdx + 1; i < len(lines) && i < startIdx+50; i++ {
+		line := strings.TrimSpace(lines[i])
+		if strings.Contains(line, "::=") && strings.Contains(line, "{") {
+			oidPattern := regexp.MustCompile(`::=\s*\{\s*(\w+)\s+(\d+)\s*\}`)
+			if matches := oidPattern.FindStringSubmatch(line); len(matches) == 3 {
+				parentName := matches[1]
+				number := matches[2]
+				p.parentMap[moduleName] = parentName + " " + number
+				return moduleName, i
+			}
+		}
+		// 如果遇到下一个主要定义，停止搜索
+		if i > startIdx+5 && (strings.Contains(line, "OBJECT-TYPE") ||
+			strings.Contains(line, "NOTIFICATION-TYPE") ||
+			strings.Contains(line, "OBJECT IDENTIFIER")) {
+			break
+		}
+	}
+
+	return moduleName, startIdx
+}
+
+// resolveOID 解析完整的 OID 路径
+func (p *MibParser) resolveOID(name string, suffix string) string {
+	// 如果已经有缓存的 OID，直接返回
+	if oid, ok := p.oidMap[name]; ok {
+		if suffix != "" {
+			return oid + "." + suffix
+		}
+		return oid
+	}
+
+	// 查找父节点
+	if parentInfo, ok := p.parentMap[name]; ok {
+		parts := strings.Fields(parentInfo)
+		if len(parts) == 2 {
+			parentName := parts[0]
+			number := parts[1]
+			parentOID := p.resolveOID(parentName, "")
+			if parentOID != "" {
+				oid := parentOID + "." + number
+				p.oidMap[name] = oid
+				if suffix != "" {
+					return oid + "." + suffix
+				}
+				return oid
+			}
+		} else if len(parts) == 1 {
+			parentName := parts[0]
+			parentOID := p.resolveOID(parentName, "")
+			if parentOID != "" {
+				p.oidMap[name] = parentOID
+				if suffix != "" {
+					return parentOID + "." + suffix
+				}
+				return parentOID
+			}
+		}
+	}
+
+	// 如果无法解析，返回空字符串（该条目将被跳过）
+	return ""
+}
+
+// parseObjectType 解析 OBJECT-TYPE 或 NOTIFICATION-TYPE 定义
+func (p *MibParser) parseObjectType(lines []string, startIdx int) (MibEntry, int) {
+	var entry MibEntry
+	var name string
+	var description strings.Builder
+	inDescription := false
+	descriptionStarted := false
+
+	// 提取名称和类型
+	namePattern := regexp.MustCompile(`(\w+)\s+(OBJECT-TYPE|NOTIFICATION-TYPE)`)
+	line := strings.TrimSpace(lines[startIdx])
+	if matches := namePattern.FindStringSubmatch(line); len(matches) == 3 {
+		name = matches[1]
+		entry.Name = name
+	}
+
+	// 查找 OID 赋值和 DESCRIPTION
+	i := startIdx + 1
+	for i < len(lines) {
+		line := strings.TrimSpace(lines[i])
+		originalLine := lines[i]
+
+		// 检查是否是 OID 赋值行: ::= { parent number }
+		if strings.Contains(line, "::=") && strings.Contains(line, "{") && !inDescription {
+			oidPattern := regexp.MustCompile(`::=\s*\{\s*(\w+)\s+(\d+)\s*\}`)
+			if matches := oidPattern.FindStringSubmatch(line); len(matches) == 3 {
+				parentName := matches[1]
+				oidSuffix := matches[2]
+				entry.OID = p.resolveOID(parentName, oidSuffix)
+				// OID 赋值通常是定义的结束，但可能还有描述
+				if !descriptionStarted {
+					// 继续查找描述
+				}
+			}
+		}
+
+		// 检查是否是 DESCRIPTION 开始
+		if strings.HasPrefix(line, "DESCRIPTION") {
+			descriptionStarted = true
+			inDescription = true
+			// 尝试提取单行描述
+			descPattern := regexp.MustCompile(`DESCRIPTION\s+"([^"]*)"`)
+			if matches := descPattern.FindStringSubmatch(line); len(matches) == 2 {
+				description.WriteString(matches[1])
+				inDescription = false
+			} else {
+				// 多行描述开始
+				descPattern2 := regexp.MustCompile(`DESCRIPTION\s+"([^"]*)`)
+				if matches := descPattern2.FindStringSubmatch(line); len(matches) == 2 {
+					description.WriteString(matches[1])
+				} else if strings.HasPrefix(line, "DESCRIPTION") {
+					// DESCRIPTION 关键字单独一行，描述在下一行
+					inDescription = true
+				}
+			}
+		} else if inDescription {
+			// 继续读取描述内容
+			// 检查是否是描述结束（以引号结尾）
+			if strings.HasSuffix(line, "\"") && !strings.HasPrefix(line, "\"") {
+				// 多行描述结束
+				desc := strings.TrimSuffix(line, "\"")
+				desc = strings.TrimSpace(desc)
+				if desc != "" {
+					if description.Len() > 0 {
+						description.WriteString(" ")
+					}
+					description.WriteString(desc)
+				}
+				inDescription = false
+			} else if strings.HasPrefix(line, "\"") && strings.HasSuffix(line, "\"") {
+				// 单行描述
+				desc := strings.Trim(line, "\"")
+				if description.Len() > 0 {
+					description.WriteString(" ")
+				}
+				description.WriteString(desc)
+				inDescription = false
+			} else if strings.HasPrefix(line, "\"") {
+				// 描述开始
+				desc := strings.TrimPrefix(line, "\"")
+				if description.Len() > 0 {
+					description.WriteString(" ")
+				}
+				description.WriteString(desc)
+			} else if !strings.HasPrefix(line, "--") && line != "" {
+				// 继续描述内容（跳过注释和空行）
+				// 检查是否是下一个定义开始
+				nextNamePattern := regexp.MustCompile(`^\s*(\w+)\s+(OBJECT-TYPE|NOTIFICATION-TYPE|OBJECT\s+IDENTIFIER|MODULE-IDENTITY)`)
+				if nextNamePattern.MatchString(originalLine) {
+					inDescription = false
+					break
+				}
+				if description.Len() > 0 {
+					description.WriteString(" ")
+				}
+				description.WriteString(line)
+			}
+		}
+
+		// 如果遇到下一个定义开始，停止
+		if i > startIdx+1 {
+			nextNamePattern := regexp.MustCompile(`^\s*(\w+)\s+(OBJECT-TYPE|NOTIFICATION-TYPE|OBJECT\s+IDENTIFIER|MODULE-IDENTITY)`)
+			if nextNamePattern.MatchString(originalLine) && !inDescription {
+				break
+			}
+		}
+
+		// 如果已经找到 OID 且描述已结束，可以提前退出
+		if entry.OID != "" && !inDescription && descriptionStarted {
+			// 检查下一行是否是新的定义
+			if i+1 < len(lines) {
+				nextLine := strings.TrimSpace(lines[i+1])
+				nextNamePattern := regexp.MustCompile(`^\s*(\w+)\s+(OBJECT-TYPE|NOTIFICATION-TYPE|OBJECT\s+IDENTIFIER|MODULE-IDENTITY)`)
+				if nextNamePattern.MatchString(nextLine) {
+					break
+				}
+			}
+		}
+
+		i++
+	}
+
+	entry.Description = strings.TrimSpace(description.String())
+	return entry, i
+}
+
+// parseMibFile 解析单个 MIB 文件
+func (p *MibParser) parseMibFile(filepath string) error {
+	content, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		return fmt.Errorf("读取文件失败 %s: %v", filepath, err)
+	}
+
+	p.currentFile = filepath
+	lines := regexp.MustCompile(`\r?\n`).Split(string(content), -1)
+
+	// 第一遍：解析所有 OBJECT IDENTIFIER 和 MODULE-IDENTITY 定义，构建 OID 树
+	for i := 0; i < len(lines); i++ {
+		line := strings.TrimSpace(lines[i])
+
+		// 处理 OBJECT IDENTIFIER 定义
+		if strings.Contains(line, "OBJECT IDENTIFIER") && strings.Contains(line, "::=") {
+			p.parseOIDAssignment(line)
+		}
+
+		// 处理 MODULE-IDENTITY 的 OID 定义
+		if strings.Contains(line, "MODULE-IDENTITY") {
+			_, nextIdx := p.parseModuleIdentity(lines, i)
+			if nextIdx > i {
+				i = nextIdx
+			}
+		}
+	}
+
+	// 第二遍：解析 OBJECT-TYPE 和 NOTIFICATION-TYPE
+	for i := 0; i < len(lines); i++ {
+		line := strings.TrimSpace(lines[i])
+		if strings.Contains(line, "OBJECT-TYPE") || strings.Contains(line, "NOTIFICATION-TYPE") {
+			entry, nextIdx := p.parseObjectType(lines, i)
+			if entry.Name != "" && entry.OID != "" {
+				p.entries = append(p.entries, entry)
+			} else if entry.Name != "" && entry.OID == "" {
+				// 记录无法解析 OID 的条目（用于调试）
+				fileName := p.currentFile
+				if idx := strings.LastIndex(fileName, string(os.PathSeparator)); idx >= 0 {
+					fileName = fileName[idx+1:]
+				}
+				log.Printf("警告: 无法解析 %s 的 OID (文件: %s)\n", entry.Name, fileName)
+			}
+			i = nextIdx - 1
+		}
 	}
 
 	return nil
 }
 
-func main() {
-	// 调用 readBlacklist 函数读取数据
-	// _, err := parseMibTxt("Quick reference of H3C new style MIB objects description.txt")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
-
-	// 输出 map
-	// fmt.Println(m)
-	err := compareAndAppendMibFiles("h3c_new_style.txt", "../../miblist.txt")
+// parseAllMibFiles 解析指定目录下所有 .mib 文件
+func (p *MibParser) parseAllMibFiles(dirPath string) error {
+	files, err := ioutil.ReadDir(dirPath)
 	if err != nil {
-		fmt.Println(err)
+		return fmt.Errorf("读取目录失败: %v", err)
+	}
+
+	for _, file := range files {
+		if !file.IsDir() && strings.HasSuffix(file.Name(), ".mib") {
+			filePath := filepath.Join(dirPath, file.Name())
+			fmt.Printf("正在解析: %s\n", file.Name())
+			if err := p.parseMibFile(filePath); err != nil {
+				log.Printf("解析文件 %s 时出错: %v\n", filePath, err)
+				continue
+			}
+		}
+	}
+
+	return nil
+}
+
+// writeToFile 将解析结果写入文件
+func (p *MibParser) writeToFile(outputPath string) error {
+	file, err := os.Create(outputPath)
+	if err != nil {
+		return fmt.Errorf("创建文件失败: %v", err)
+	}
+	defer file.Close()
+
+	writer := bufio.NewWriter(file)
+	defer writer.Flush()
+
+	// 写入表头（可选）
+	// writer.WriteString("name\toid\tdescription\n")
+
+	// 写入所有条目
+	for _, entry := range p.entries {
+		// 格式: "oidname"			"oid"			""
+		line := fmt.Sprintf("\"%s\"\t\t\"%s\"\t\t\"\"\n", entry.Name, entry.OID)
+		if _, err := writer.WriteString(line); err != nil {
+			return fmt.Errorf("写入文件失败: %v", err)
+		}
+	}
+
+	fmt.Printf("成功解析 %d 个条目，已写入到 %s\n", len(p.entries), outputPath)
+	return nil
+}
+
+func main() {
+	// 获取当前文件所在目录
+	currentDir, err := os.Getwd()
+	if err != nil {
+		log.Fatal("获取当前目录失败:", err)
+	}
+
+	// MIB 文件目录
+	mibDir := filepath.Join(currentDir, "H3C New Style Private MIB")
+	if _, err := os.Stat(mibDir); os.IsNotExist(err) {
+		log.Fatalf("目录不存在: %s", mibDir)
+	}
+
+	// 输出文件路径
+	outputFile := filepath.Join(currentDir, "h3c_new_style.txt")
+
+	// 创建解析器并解析所有文件
+	parser := NewMibParser()
+	if err := parser.parseAllMibFiles(mibDir); err != nil {
+		log.Fatal("解析 MIB 文件失败:", err)
+	}
+
+	// 写入结果文件
+	if err := parser.writeToFile(outputFile); err != nil {
+		log.Fatal("写入文件失败:", err)
 	}
 }
