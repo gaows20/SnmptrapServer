@@ -14,8 +14,6 @@ TrapServer:
   mib_map_file: "miblist.txt"
   h3c_mib_map_file: "mib_tree/H3C/h3c_new_style.txt"
   black_mib_map_file: "blackmiblist.txt"
-  data_dir: "./data"          # 持久化存储目录
-  max_messages: 10000         # 最大存储消息数量
 ApiServer:
   api_port: 8070 # apiserver的监听端口
   api_read_timeout: 5 #apiserver读请求超时时间， 秒

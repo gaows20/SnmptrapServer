@@ -2,7 +2,7 @@ package apiserver
 
 import (
 	"cqrcsnmpserver/common/sender"
-	"cqrcsnmpserver/storage"
+	"cqrcsnmpserver/global"
 	"cqrcsnmpserver/trap"
 	"fmt"
 	log "github.com/sirupsen/logrus"
@@ -28,34 +28,20 @@ func handlerIndex(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := map[string][]template.HTML{}
-
-	// 从持久化存储读取消息
-	messages := storage.GetTrapMessages(1000)
-	if len(messages) > 0 {
-		// 按 IP 分组
-		msgByIP := make(map[string][]template.HTML)
-		for _, msg := range messages {
-			formattedMsg := strings.Replace(msg.Content, "\n", "<br/>", -1)
-			msgByIP[msg.HostIP] = append(msgByIP[msg.HostIP], template.HTML(formattedMsg))
+	for k := range trap.TrapMap {
+		arr, err := trap.TrapMap[k].GetListArray()
+		if err != nil {
+			log.WithField("ipaddr", k).Error(fmt.Sprintf("get arraylist from trapmap error", err))
+			continue
 		}
-		data = msgByIP
-	} else {
-		// 如果没有持久化数据，回退到内存存储
-		for k := range trap.TrapMap {
-			arr, err := trap.TrapMap[k].GetListArray()
-			if err != nil {
-				log.WithField("ipaddr", k).Error(fmt.Sprintf("get arraylist from trapmap error", err))
-				continue
+		traparr := make([]template.HTML, 0)
+		for _, v := range arr {
+			if v != nil {
+				msg := strings.Replace(v.(string), "\n", "<br/>", -1)
+				traparr = append(traparr, template.HTML(msg))
 			}
-			traparr := make([]template.HTML, 0)
-			for _, v := range arr {
-				if v != nil {
-					msg := strings.Replace(v.(string), "\n", "<br/>", -1)
-					traparr = append(traparr, template.HTML(msg))
-				}
-			}
-			data[k] = traparr
 		}
+		data[k] = traparr
 	}
 	t.Execute(w, data)
 	return
@@ -78,7 +64,13 @@ func handlerPduDel(w http.ResponseWriter, r *http.Request){
 		fmt.Fprintf(w, `{"success": false, "message": "删除数据失败：%s"}`, err)
 		return
 	}
+	// 发送恢复通知
+	recoverMsg := global.PushMessage{
+		Host:       ip,
+		TrapStatus: 0,
+	}
 	sender.PushRecoverMetrics(ip)
+	sender.PushWebhooks(ip, recoverMsg, "")
 	fmt.Fprint(w, `{"success": true, "message": "删除数据成功"}`)
 }
 
