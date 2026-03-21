@@ -68,6 +68,10 @@ func runSnmpGet(target, community, oid string) (string, error) {
 	for i, variable := range result.Variables {
 		fmt.Printf("%d: oid: %s ", i, variable.Name)
 
+		if variable.Value == nil {
+			return "nil value", nil
+		}
+
 		switch variable.Type {
 		case g.OctetString:
 			// fmt.Printf("string: %s\n", string(variable.Value.([]byte)))
@@ -204,7 +208,7 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 				Desc:       oidDesc,
 			}
 			if drop := dropOID(pdu.RawOID, global.GVA_CONFIG.TrapServer.BlackMibMapFile); drop {
-				return
+				continue
 			}
 			pdus = append(pdus, &pdu)
 		case g.OctetString:
@@ -223,7 +227,7 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 				Desc:       oidDesc,
 			}
 			if drop := dropOID(pdu.RawOID, global.GVA_CONFIG.TrapServer.BlackMibMapFile); drop {
-				return
+				continue
 			}
 			pdus = append(pdus, &pdu)
 		// 嵌套OID
@@ -250,7 +254,7 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 				Desc:       oidDesc,
 			}
 			if drop := dropOID(pdu.RawOID, global.GVA_CONFIG.TrapServer.BlackMibMapFile); drop {
-				return
+				continue
 			}
 			pdus = append(pdus, &pdu)
 		default:
@@ -287,7 +291,7 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 				Desc:       oidDesc,
 			}
 			if drop := dropOID(pdu.RawOID, global.GVA_CONFIG.TrapServer.BlackMibMapFile); drop {
-				return
+				continue
 			}
 			pdus = append(pdus, &pdu)
 		}

@@ -7,9 +7,8 @@ WORKDIR /go/src/app
 # 复制项目文件到容器中
 COPY . .
 
-# 编译项目
-RUN go get
-RUN go build -tags gosnmp_nodebug -o app main.go 
+# 编译项目（使用vendor目录中的依赖）
+RUN go build -mod=vendor -tags gosnmp_nodebug -o app main.go
 
 EXPOSE 162/udp
 EXPOSE 8070/tcp
