@@ -5,6 +5,7 @@ import (
 	"cqrcsnmpserver/common/sender"
 	"cqrcsnmpserver/global"
 	"cqrcsnmpserver/linklist"
+	"cqrcsnmpserver/storage"
 	"fmt"
 	"math"
 	"net"
@@ -312,6 +313,18 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 	push_msg.Index = fmt.Sprintf("%v", packet.ErrorIndex)
 	// sender.Sends(hostip, msg)
 	sender.Sends(hostip, push_msg, msg)
+
+	// 保存到持久化存储
+	var trapOID string
+	for _, tag := range tags {
+		if tag["oid"] == "snmpTrapOID.0" || tag["oid"] == "snmpTrapOID" {
+			trapOID = tag["value"]
+			break
+		}
+	}
+	if err := storage.SaveTrapMessage(hostip, push_msg.Version, packet.Community, trapOID, msg); err != nil {
+		log.WithError(err).Error("保存消息到存储失败")
+	}
 }
 
 func paesePdusToListMap(pdus []*TrapPDU) []map[string]string {
