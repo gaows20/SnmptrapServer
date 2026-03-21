@@ -1,94 +1,530 @@
 <!DOCTYPE html>
-<html lang="utf-8" xmlns="http://www.w3.org/1999/html">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>SNMP TRAP Server服务程序</title>
-    <script  src="/static/jquery/jquery-3.5.1.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SNMP TRAP Server - 管理后台</title>
+    <script src="/static/jquery/jquery-3.5.1.min.js"></script>
     <link href="/static/bootstrap-4.4.1-dist/css/bootstrap.css" rel="stylesheet">
-    <script  src="/static/bootstrap-4.4.1-dist/js/bootstrap.js"></script>
+    <script src="/static/bootstrap-4.4.1-dist/js/bootstrap.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4a90d9;
+            --secondary-color: #5c6bc0;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --border-color: #e0e6ed;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        .main-container {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title i {
+            font-size: 32px;
+            color: var(--secondary-color);
+        }
+
+        .header-subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+            margin-left: 44px;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(74, 144, 217, 0.3);
+        }
+
+        .stat-item i {
+            font-size: 24px;
+            opacity: 0.9;
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+
+        .device-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .device-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .device-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 18px 25px;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+
+        .device-header:hover {
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+        }
+
+        .device-header:not(.collapsed) {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .device-header:not(.collapsed) .device-name,
+        .device-header:not(.collapsed) .device-ip,
+        .device-header:not(.collapsed) .badge {
+            color: white;
+        }
+
+        .device-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .device-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .device-header:not(.collapsed) .device-icon {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .device-name {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 16px;
+        }
+
+        .device-ip {
+            color: #666;
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .device-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .badge-custom {
+            background: linear-gradient(135deg, var(--success-color), #66bb6a);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .expand-icon {
+            font-size: 18px;
+            color: #999;
+            transition: transform 0.3s ease;
+        }
+
+        .device-header:not(.collapsed) .expand-icon {
+            color: white;
+            transform: rotate(180deg);
+        }
+
+        .device-body {
+            padding: 0;
+        }
+
+        .message-table {
+            margin: 0;
+            width: 100%;
+        }
+
+        .message-table thead {
+            background: linear-gradient(135deg, #343a40, #495057);
+        }
+
+        .message-table thead th {
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 15px 20px;
+            border: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .message-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .message-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .message-table tbody td {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .message-index {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 14px;
+        }
+
+        .message-content {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #555;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, var(--danger-color), #e57373);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-delete:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 10px;
+            }
+
+            .header-title {
+                font-size: 20px;
+            }
+
+            .stats-bar {
+                justify-content: center;
+            }
+
+            .device-header {
+                padding: 15px;
+            }
+
+            .message-content {
+                font-size: 12px;
+                padding: 10px;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="page-header">
-                    <h1>SNMP TRAP Server管理后台<small>NetAxe</small></h1>
+    <div class="main-container">
+        <div class="header-card fade-in">
+            <h1 class="header-title">
+                <i class="fas fa-network-wired"></i>
+                SNMP TRAP Server
+            </h1>
+            <p class="header-subtitle">网络设备告警监控管理后台</p>
+
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <i class="fas fa-server"></i>
+                    <div class="stat-info">
+                        <span class="stat-value" id="deviceCount">{{len .}}</span>
+                        <span class="stat-label">在线设备</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-bell"></i>
+                    <div class="stat-info">
+                        <span class="stat-value" id="totalMessages">-</span>
+                        <span class="stat-label">告警消息</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-clock"></i>
+                    <div class="stat-info">
+                        <span class="stat-value" id="lastUpdate">-</span>
+                        <span class="stat-label">最后更新</span>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="accordion" id="accordionExample">
-                    {{range $ip, $list := .}}
-                        <div class="card">
-                            <div class="card-header" id="headingOne">
-                                <h2 class="mb-0">
-                                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne_{{Replace $ip}}" aria-expanded="false" aria-controls="collapseOne">
-                                        {{$ip}}
-                                    </button>
-                                </h2>
-                            </div>
 
-                            <div id="collapseOne_{{Replace $ip}}" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
-                                <div class="card-body">
-                                        <table class="table">
-                                            <thead class="thead-dark">
-                                            <tr>
-                                                <th scope="col">编号</th>
-                                                <th scope="col">消息</th>
-                                                <th scope="col">操作(OP)</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            {{range $i,  $pdu := $list}}
-                                                <tr>
-                                                    <th scope="row">{{$i}}</th>
-                                                    <td>{{$pdu}}</td>
-                                                    <td><button type="button" class="btn btn-danger" id="delbtn" onclick="hello( {{$ip}}, {{ $i }})">删除</button></td>
-                                                </tr>
-                                            {{ end }}
-                                            </tbody>
-                                        </table>
-                                </div>
+        {{if .}}
+            <div id="deviceAccordion">
+                {{range $ip, $list := .}}
+                <div class="device-card fade-in">
+                    <button class="device-header collapsed" type="button" data-toggle="collapse" data-target="#collapse_{{Replace $ip}}" aria-expanded="false">
+                        <div class="device-info">
+                            <div class="device-icon">
+                                <i class="fas fa-router"></i>
+                            </div>
+                            <div>
+                                <div class="device-name">设备 {{$ip}}</div>
+                                <div class="device-ip">{{$ip}}</div>
                             </div>
                         </div>
-                    {{end}}
+                        <div class="device-meta">
+                            <span class="badge-custom">{{len $list}} 条消息</span>
+                            <i class="fas fa-chevron-down expand-icon"></i>
+                        </div>
+                    </button>
+
+                    <div id="collapse_{{Replace $ip}}" class="collapse device-body" data-parent="#deviceAccordion">
+                        <table class="message-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">序号</th>
+                                    <th>消息详情</th>
+                                    <th style="width: 100px;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{range $i, $pdu := $list}}
+                                <tr>
+                                    <td><span class="message-index">#{{$i}}</span></td>
+                                    <td><div class="message-content">{{$pdu}}</div></td>
+                                    <td>
+                                        <button type="button" class="btn-delete" onclick="deleteMessage('{{$ip}}', {{$i}})">
+                                            <i class="fas fa-trash-alt"></i>
+                                            删除
+                                        </button>
+                                    </td>
+                                </tr>
+                                {{end}}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+                {{end}}
             </div>
+        {{else}}
+            <div class="header-card empty-state">
+                <i class="fas fa-inbox"></i>
+                <h3>暂无告警消息</h3>
+                <p>等待接收 SNMP TRAP 消息...</p>
+            </div>
+        {{end}}
+
+        <div class="footer">
+            <p>© 2024 SNMP TRAP Server | NetAxe</p>
         </div>
     </div>
-<script>
-    function hello(host, index) {
-        var r = confirm("确定删除[" + host + "]第" + index + "行数据?");
-        if (r==true)
-        {
+
+    <script>
+        function deleteMessage(host, index) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: '确认删除?',
+                    text: `确定删除设备 [${host}] 的第 ${index} 条消息?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#f44336',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '删除',
+                    cancelButtonText: '取消'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        doDelete(host, index);
+                    }
+                });
+            } else {
+                var r = confirm("确定删除[" + host + "]第" + index + "行数据?");
+                if (r == true) {
+                    doDelete(host, index);
+                }
+            }
+        }
+
+        function doDelete(host, index) {
             $.ajax({
-                //请求方式
-                type : "POST",
-                url : "/delpdu",
-                dataType:"json",
-                //数据，json字符串
-                data : {
-                    ip:host,
-                    index:index
+                type: "POST",
+                url: "/delpdu",
+                dataType: "json",
+                data: {
+                    ip: host,
+                    index: index
                 },
-                //请求成功
-                success : function(result) {
-                    window.location.href = window.location.href
-                    alert("返回成功消息:"+result)
+                success: function(result) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: '删除成功!',
+                            text: '消息已删除',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        alert("返回成功消息:" + result);
+                        window.location.href = window.location.href;
+                    }
                 },
-                //请求失败，包含具体的错误信息
-                error : function(e){
-                    alert(e.status);
-                    alert(e.responseText);
+                error: function(e) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: '删除失败!',
+                            text: e.responseText || '请稍后重试',
+                            icon: 'error'
+                        });
+                    } else {
+                        alert(e.status);
+                        alert(e.responseText);
+                    }
                 }
             });
         }
-        else
-        {
-            return
-        }
-    }
-</script>
+
+        // 计算总消息数
+        $(document).ready(function() {
+            let total = 0;
+            $('.badge-custom').each(function() {
+                const count = parseInt($(this).text());
+                if (!isNaN(count)) {
+                    total += count;
+                }
+            });
+            $('#totalMessages').text(total);
+
+            // 设置最后更新时间
+            const now = new Date();
+            const timeStr = now.getFullYear() + '-' +
+                String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                String(now.getDate()).padStart(2, '0') + ' ' +
+                String(now.getHours()).padStart(2, '0') + ':' +
+                String(now.getMinutes()).padStart(2, '0');
+            $('#lastUpdate').text(timeStr);
+        });
+
+        // 自动刷新页面
+        setInterval(function() {
+            window.location.reload();
+        }, 30000);
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>
