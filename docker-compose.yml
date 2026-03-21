@@ -13,6 +13,7 @@ services:
           - ./config.yml:/go/src/app/config.yml
           - ./miblist.txt:/go/src/app/miblist.txt
           - ./blackmiblist.txt:/go/src/app/blackmiblist.txt
+          - ./data:/go/src/app/data
       network_mode: "host"
       restart: always
 
