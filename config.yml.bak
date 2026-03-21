@@ -31,5 +31,5 @@ sender:
   # sender_dir: "./zabbix_sender.exe"
   senders:
     # - "zabbix"
-    - "pushgateway"
+    # - "pushgateway"
     - "webhook"
