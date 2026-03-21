@@ -64,18 +64,21 @@ func handlerIndex(w http.ResponseWriter, r *http.Request) {
 
 
 func handlerPduDel(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
 	r.ParseForm()
 	ip := r.Form.Get("ip")
 	index, err := strconv.ParseInt(r.Form.Get("index"),10,64)
 	if err != nil {
-		fmt.Fprint(w, fmt.Sprintf("index数据[%v]不为int类型，",r.Form.Get("index")))
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, `{"success": false, "message": "index数据[%v]不为int类型"}`, r.Form.Get("index"))
+		return
 	}
 	if err := trap.DelItem(ip, index); err != nil {
-		fmt.Fprint(w, fmt.Sprintf("删除数据失败：%s", err))
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, `{"success": false, "message": "删除数据失败：%s"}`, err)
+		return
 	}
 	sender.PushRecoverMetrics(ip)
-	fmt.Fprint(w, "删除数据成功")
-
-
+	fmt.Fprint(w, `{"success": true, "message": "删除数据成功"}`)
 }
 

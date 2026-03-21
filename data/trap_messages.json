@@ -1,23 +1,5 @@
 [
   {
-    "id": 21,
-    "host_ip": "127.0.0.1",
-    "version": "2c",
-    "community": "public",
-    "trap_oid": "coldStart",
-    "content": "2026-03-21 17:29:38 CQRCB_SYSTEM 127.0.0.1\nPDU INFO:\n  MESSAGE TYPE: SNMP TRAP \n  VERSION:  2c\n  FROM: [127.0.0.1]\n  STATUS: [NoError]\n  MESSAGE ID: [0]\n  COMMUNITY: [public]\n  INDEX: [0]\n  REQUEST ID: [1459803252]\nTRAP VARIABLES:\n  SNMP-MIB::sysUpTimeInstance  value=TimeTicks: [2598068]\n  SNMP-MIB::snmpTrapOID.0  value=ObjectIdentifier: [coldStart]\n  SNMP-MIB::sysDescr.0  value=OctetString: [测试消息 #20 - coldStart]\n  SNMP-MIB::sysName.0  value=OctetString: [Device-1]\n  SNMP-MIB::sysLocation.0  value=OctetString: [机房-5]\n",
-    "created_at": "2026-03-21T17:29:38.434803042Z"
-  },
-  {
-    "id": 20,
-    "host_ip": "127.0.0.1",
-    "version": "2c",
-    "community": "public",
-    "trap_oid": "",
-    "content": "2026-03-21 17:29:38 CQRCB_SYSTEM 127.0.0.1\nPDU INFO:\n  MESSAGE TYPE: SNMP TRAP \n  VERSION:  2c\n  FROM: [127.0.0.1]\n  STATUS: [NoError]\n  MESSAGE ID: [0]\n  COMMUNITY: [public]\n  INDEX: [0]\n  REQUEST ID: [1840912447]\nTRAP VARIABLES:\n  SNMP-MIB::sysUpTimeInstance  value=TimeTicks: [2598036]\n  SNMP-MIB::sysDescr.0  value=OctetString: [测试消息 #19 - authenticationFailure]\n  SNMP-MIB::sysName.0  value=OctetString: [Device-5]\n  SNMP-MIB::sysLocation.0  value=OctetString: [机房-4]\n",
-    "created_at": "2026-03-21T17:29:38.116094232Z"
-  },
-  {
     "id": 19,
     "host_ip": "127.0.0.1",
     "version": "2c",
@@ -178,14 +160,5 @@
     "trap_oid": "warmStart",
     "content": "2026-03-21 17:29:32 CQRCB_SYSTEM 127.0.0.1\nPDU INFO:\n  MESSAGE TYPE: SNMP TRAP \n  VERSION:  2c\n  FROM: [127.0.0.1]\n  STATUS: [NoError]\n  MESSAGE ID: [0]\n  COMMUNITY: [public]\n  INDEX: [0]\n  REQUEST ID: [1078904582]\nTRAP VARIABLES:\n  SNMP-MIB::sysUpTimeInstance  value=TimeTicks: [2597463]\n  SNMP-MIB::snmpTrapOID.0  value=ObjectIdentifier: [warmStart]\n  SNMP-MIB::sysDescr.0  value=OctetString: [测试消息 #1 - warmStart]\n  SNMP-MIB::sysName.0  value=OctetString: [Device-2]\n  SNMP-MIB::sysLocation.0  value=OctetString: [机房-1]\n",
     "created_at": "2026-03-21T17:29:32.383542242Z"
-  },
-  {
-    "id": 1,
-    "host_ip": "127.0.0.1",
-    "version": "2c",
-    "community": "public",
-    "trap_oid": "coldStart",
-    "content": "2026-03-21 17:13:53 CQRCB_SYSTEM 127.0.0.1\nPDU INFO:\n  MESSAGE TYPE: SNMP TRAP \n  VERSION:  2c\n  FROM: [127.0.0.1]\n  STATUS: [NoError]\n  MESSAGE ID: [0]\n  COMMUNITY: [public]\n  INDEX: [0]\n  REQUEST ID: [847058511]\nTRAP VARIABLES:\n  SNMP-MIB::sysUpTimeInstance  value=TimeTicks: [2503566]\n  SNMP-MIB::snmpTrapOID.0  value=ObjectIdentifier: [coldStart]\n  SNMP-MIB::sysDescr.0  value=OctetString: [数据映射测试消息]\n  SNMP-MIB::sysName.0  value=OctetString: [Test-Device]\n",
-    "created_at": "2026-03-21T17:13:53.414515119Z"
   }
 ]

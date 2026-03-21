@@ -481,31 +481,49 @@
                     index: index
                 },
                 success: function(result) {
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            title: '删除成功!',
-                            text: '消息已删除',
-                            icon: 'success',
-                            timer: 1500,
-                            showConfirmButton: false
-                        }).then(() => {
+                    if (result.success) {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                title: '删除成功!',
+                                text: result.message,
+                                icon: 'success',
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            alert(result.message);
                             window.location.reload();
-                        });
+                        }
                     } else {
-                        alert("返回成功消息:" + result);
-                        window.location.href = window.location.href;
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                title: '删除失败!',
+                                text: result.message,
+                                icon: 'error'
+                            });
+                        } else {
+                            alert(result.message);
+                        }
                     }
                 },
                 error: function(e) {
+                    let msg = '请稍后重试';
+                    try {
+                        const res = JSON.parse(e.responseText);
+                        msg = res.message || msg;
+                    } catch (err) {
+                        msg = e.responseText || msg;
+                    }
                     if (typeof Swal !== 'undefined') {
                         Swal.fire({
                             title: '删除失败!',
-                            text: e.responseText || '请稍后重试',
+                            text: msg,
                             icon: 'error'
                         });
                     } else {
-                        alert(e.status);
-                        alert(e.responseText);
+                        alert(msg);
                     }
                 }
             });

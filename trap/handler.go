@@ -349,16 +349,34 @@ func BaseTrapHandler(packet *g.SnmpPacket, addr *net.UDPAddr) {
 }
 
 func DelItem(ip string, index int64) error {
+	// 先从内存中删除
 	curlist, ok := TrapMap[ip]
 	if ok {
 		curlist.RemoveAtIndex(index)
 		if curlist.Length() <= 0 {
 			delete(TrapMap, ip)
 		}
+		log.WithFields(log.Fields{
+			"ip":    ip,
+			"index": index,
+		}).Info("从内存中删除消息")
 	} else {
-		return fmt.Errorf("%v", fmt.Sprintf("该IP【%s】没有在trap数据库中", ip))
-		// return errors.New(fmt.Sprintf("该IP【%s】没有在trap数据库中", ip))
+		log.WithField("ip", ip).Warn("IP 不在内存 TrapMap 中")
 	}
+
+	// 再从持久化存储中删除
+	if err := storage.DeleteTrapMessage(ip, int(index)); err != nil {
+		log.WithError(err).WithFields(log.Fields{
+			"ip":    ip,
+			"index": index,
+		}).Error("删除持久化数据失败")
+		return fmt.Errorf("删除持久化数据失败：%s", err)
+	}
+
+	log.WithFields(log.Fields{
+		"ip":    ip,
+		"index": index,
+	}).Info("删除消息完成")
 	return nil
 }
 

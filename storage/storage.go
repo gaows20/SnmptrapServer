@@ -113,10 +113,7 @@ func (s *Storage) load() error {
 
 // save 保存数据到文件
 func (s *Storage) save() error {
-	s.mu.RLock()
 	data, err := json.MarshalIndent(s.messages, "", "  ")
-	s.mu.RUnlock()
-
 	if err != nil {
 		return fmt.Errorf("序列化数据失败: %v", err)
 	}
@@ -143,7 +140,10 @@ func (s *Storage) periodicSave() {
 	defer ticker.Stop()
 
 	for range ticker.C {
-		if err := s.save(); err != nil {
+		s.mu.RLock()
+		err := s.save()
+		s.mu.RUnlock()
+		if err != nil {
 			logrus.WithError(err).Error("定期保存数据失败")
 		}
 	}
@@ -229,6 +229,71 @@ func (s *Storage) DeleteOldMessages(days int) error {
 	return s.save()
 }
 
+// DeleteTrapMessage 删除指定 IP 和索引的消息
+func (s *Storage) DeleteTrapMessage(hostIP string, index int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	logrus.WithFields(logrus.Fields{
+		"hostIP":      hostIP,
+		"index":       index,
+		"totalMsgs":   len(s.messages),
+	}).Info("开始删除消息")
+
+	// 找到该 IP 的所有消息
+	var ipMessages []int // 存储该 IP 消息在数组中的索引
+	for i, msg := range s.messages {
+		if msg.HostIP == hostIP {
+			ipMessages = append(ipMessages, i)
+		}
+	}
+
+	logrus.WithFields(logrus.Fields{
+		"hostIP":         hostIP,
+		"ipMsgCount":     len(ipMessages),
+		"requestedIndex": index,
+	}).Info("找到该 IP 的消息")
+
+	if index < 0 || index >= len(ipMessages) {
+		return fmt.Errorf("索引 %d 超出范围，该 IP 共有 %d 条消息", index, len(ipMessages))
+	}
+
+	// 获取要删除的消息在总数组中的位置
+	targetIndex := ipMessages[index]
+	deletedMsg := s.messages[targetIndex]
+
+	logrus.WithFields(logrus.Fields{
+		"hostIP":      hostIP,
+		"index":       index,
+		"targetIndex": targetIndex,
+		"msgID":       deletedMsg.ID,
+	}).Info("准备删除消息")
+
+	// 删除该消息
+	s.messages = append(s.messages[:targetIndex], s.messages[targetIndex+1:]...)
+
+	logrus.WithFields(logrus.Fields{
+		"hostIP":     hostIP,
+		"index":      index,
+		"msgID":      deletedMsg.ID,
+		"remainMsgs": len(s.messages),
+	}).Info("消息已从内存删除，准备保存")
+
+	// 立即保存
+	if err := s.save(); err != nil {
+		logrus.WithError(err).Error("保存数据失败")
+		return fmt.Errorf("保存数据失败: %v", err)
+	}
+
+	logrus.WithFields(logrus.Fields{
+		"hostIP": hostIP,
+		"index":  index,
+		"msgID":  deletedMsg.ID,
+	}).Info("删除消息成功并保存到文件")
+
+	return nil
+}
+
 // Close 关闭存储，保存数据
 func (s *Storage) Close() error {
 	return s.save()
@@ -266,6 +331,14 @@ func DeleteOldMessages(days int) error {
 		return fmt.Errorf("存储未初始化")
 	}
 	return defaultStorage.DeleteOldMessages(days)
+}
+
+// DeleteTrapMessage 删除指定 IP 和索引的消息（使用默认存储）
+func DeleteTrapMessage(hostIP string, index int) error {
+	if defaultStorage == nil {
+		return fmt.Errorf("存储未初始化")
+	}
+	return defaultStorage.DeleteTrapMessage(hostIP, index)
 }
 
 // Close 关闭默认存储
