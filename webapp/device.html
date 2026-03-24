@@ -351,21 +351,22 @@
         <div class="content-card fade-in">
             <h1>设备名称映射管理</h1>
 
-            <div class="form-section">
-                <h3>添加/修改设备映射</h3>
-                <form id="deviceForm">
-                    <div class="form-group">
-                        <label for="ip">设备IP地址</label>
-                        <input type="text" id="ip" name="ip" placeholder="例如：192.168.1.1" required>
+            <div class="form-section" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                <form id="deviceForm" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap; width: 100%;">
+                    <div class="form-group" style="flex: 1; min-width: 200px;">
+                        <label for="ip" style="font-size: 14px; margin-bottom: 4px;">设备IP地址</label>
+                        <input type="text" id="ip" name="ip" placeholder="例如：192.168.1.1" required style="width: 100%;">
                     </div>
-                    <div class="form-group">
-                        <label for="name">设备名称</label>
-                        <input type="text" id="name" name="name" placeholder="例如：核心交换机" required>
+                    <div class="form-group" style="flex: 1; min-width: 200px;">
+                        <label for="name" style="font-size: 14px; margin-bottom: 4px;">设备名称</label>
+                        <input type="text" id="name" name="name" placeholder="例如：核心交换机" required style="width: 100%;">
                     </div>
-                    <button type="submit" class="btn-primary">
-                        <i class="fas fa-save"></i>
-                        保存
-                    </button>
+                    <div style="display: flex; align-items: end; min-width: 100px;">
+                        <button type="submit" class="btn-primary" style="width: 100%;">
+                            <i class="fas fa-save"></i>
+                            保存
+                        </button>
+                    </div>
                 </form>
             </div>
 
