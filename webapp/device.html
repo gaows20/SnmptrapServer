@@ -4,122 +4,254 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>设备名称映射管理 - SNMP Trap Server</title>
+    <script src="/static/jquery/jquery-3.5.1.min.js"></script>
+    <link href="/static/bootstrap-4.4.1-dist/css/bootstrap.css" rel="stylesheet">
+    <script src="/static/bootstrap-4.4.1-dist/js/bootstrap.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --primary-color: #4a90d9;
+            --secondary-color: #5c6bc0;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --border-color: #e0e6ed;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
         }
 
         body {
-            font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        .main-container {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-left {
             display: flex;
             flex-direction: column;
         }
 
-        .container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            flex: 1;
+        .header-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title i {
+            font-size: 28px;
+            color: var(--secondary-color);
+        }
+
+        .header-subtitle {
+            color: #666;
+            font-size: 13px;
+            margin-top: 4px;
+            margin-left: 40px;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(74, 144, 217, 0.3);
+            min-width: 120px;
+        }
+
+        .stat-item i {
+            font-size: 20px;
+            opacity: 0.9;
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            opacity: 0.9;
+            margin-top: 2px;
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
         }
 
         h1 {
             text-align: center;
-            color: #333;
-            margin-bottom: 20px;
+            color: var(--primary-color);
+            margin-bottom: 30px;
             font-size: 24px;
+            font-weight: 700;
         }
 
         .form-section {
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
+            margin-bottom: 40px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
             background: #f9f9f9;
         }
 
+        .form-section h3 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #555;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
         }
 
         input[type="text"] {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1);
         }
 
         button {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            margin-right: 10px;
+            margin-right: 12px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .btn-primary {
-            background: #4CAF50;
+            background: linear-gradient(135deg, var(--success-color), #66bb6a);
             color: white;
         }
 
         .btn-primary:hover {
-            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
         }
 
         .btn-danger {
-            background: #f44336;
+            background: linear-gradient(135deg, var(--danger-color), #e57373);
             color: white;
         }
 
         .btn-danger:hover {
-            background: #da190b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
         }
 
         .table-section {
-            margin-top: 30px;
+            margin-top: 40px;
+        }
+
+        .table-section h3 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 600;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            margin-top: 15px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
         }
 
         th, td {
-            padding: 12px;
+            padding: 15px 20px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid var(--border-color);
         }
 
         th {
-            background-color: #f2f2f2;
-            font-weight: bold;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         tr:hover {
-            background-color: #f5f5f5;
+            background-color: #f8f9fa;
         }
 
         .message {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 4px;
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 8px;
             text-align: center;
+            font-weight: 600;
         }
 
         .success {
@@ -134,95 +266,130 @@
             border: 1px solid #f5c6cb;
         }
 
-        .header {
-            background: white;
-            padding: 10px 0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-content {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .nav a {
-            margin-left: 20px;
-            text-decoration: none;
-            color: #666;
-        }
-
-        .nav a:hover {
-            color: #4CAF50;
-        }
-
         .footer {
-            background: white;
-            padding: 10px 0;
             text-align: center;
-            margin-top: 20px;
-            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 10px;
+            }
+
+            .header-title {
+                font-size: 20px;
+            }
+
+            .stats-bar {
+                justify-content: center;
+            }
+
+            .content-card {
+                padding: 20px;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 10px 15px;
+            }
+
+            button {
+                padding: 10px 18px;
+                font-size: 14px;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-content">
-            <div class="logo">SNMP Trap Server</div>
-            <div class="nav">
-                <a href="/">首页</a>
-                <a href="/device.html">设备管理</a>
+    <div class="main-container">
+        <div class="header-card fade-in">
+            <div class="header-left">
+                <h1 class="header-title">
+                    <i class="fas fa-network-wired"></i>
+                    SNMP TRAP Server
+                </h1>
+                <p class="header-subtitle">网络设备告警监控管理后台</p>
+            </div>
+
+            <div class="stats-bar">
+                <div class="stat-item" style="background: linear-gradient(135deg, #9c27b0, #7b1fa2);">
+                    <i class="fas fa-home"></i>
+                    <div class="stat-info">
+                        <a href="/" style="color: white; text-decoration: none;">
+                            <span class="stat-value">首页</span>
+                        </a>
+                        <span class="stat-label">告警监控</span>
+                    </div>
+                </div>
+                <div class="stat-item" style="background: linear-gradient(135deg, #ff9800, #f57c00);">
+                    <i class="fas fa-cog"></i>
+                    <div class="stat-info">
+                        <a href="/device.html" style="color: white; text-decoration: none;">
+                            <span class="stat-value">设备管理</span>
+                        </a>
+                        <span class="stat-label">配置映射</span>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="container">
-        <h1>设备名称映射管理</h1>
+        <div class="content-card fade-in">
+            <h1>设备名称映射管理</h1>
 
-        <div class="form-section">
-            <h3>添加/修改设备映射</h3>
-            <form id="deviceForm">
-                <div class="form-group">
-                    <label for="ip">设备IP地址</label>
-                    <input type="text" id="ip" name="ip" placeholder="例如：192.168.1.1" required>
-                </div>
-                <div class="form-group">
-                    <label for="name">设备名称</label>
-                    <input type="text" id="name" name="name" placeholder="例如：核心交换机" required>
-                </div>
-                <button type="submit" class="btn-primary">保存</button>
-            </form>
+            <div class="form-section">
+                <h3>添加/修改设备映射</h3>
+                <form id="deviceForm">
+                    <div class="form-group">
+                        <label for="ip">设备IP地址</label>
+                        <input type="text" id="ip" name="ip" placeholder="例如：192.168.1.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="name">设备名称</label>
+                        <input type="text" id="name" name="name" placeholder="例如：核心交换机" required>
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i>
+                        保存
+                    </button>
+                </form>
+            </div>
+
+            <div class="table-section">
+                <h3>设备映射列表</h3>
+                <div id="message" class="message" style="display: none;"></div>
+                <table id="deviceTable">
+                    <thead>
+                        <tr>
+                            <th>设备IP</th>
+                            <th>设备名称</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 设备列表将通过JavaScript动态添加 -->
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <div class="table-section">
-            <h3>设备映射列表</h3>
-            <div id="message" class="message" style="display: none;"></div>
-            <table id="deviceTable">
-                <thead>
-                    <tr>
-                        <th>设备IP</th>
-                        <th>设备名称</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- 设备列表将通过JavaScript动态添加 -->
-                </tbody>
-            </table>
+        <div class="footer">
+            <p>&copy; 2024 SNMP TRAP Server | NetAxe</p>
         </div>
-    </div>
-
-    <div class="footer">
-        <p>&copy; 2024 SNMP Trap Server | NetAxe</p>
     </div>
 
     <script>
@@ -247,12 +414,19 @@
                     
                     for (const [ip, name] of Object.entries(data)) {
                         const row = document.createElement('tr');
+                        row.className = 'fade-in';
                         row.innerHTML = `
                             <td>${ip}</td>
                             <td>${name}</td>
                             <td>
-                                <button class="btn-primary" onclick="editDevice('${ip}', '${name}')">编辑</button>
-                                <button class="btn-danger" onclick="deleteDevice('${ip}')">删除</button>
+                                <button class="btn-primary" onclick="editDevice('${ip}', '${name}')">
+                                    <i class="fas fa-edit"></i>
+                                    编辑
+                                </button>
+                                <button class="btn-danger" onclick="deleteDevice('${ip}')">
+                                    <i class="fas fa-trash-alt"></i>
+                                    删除
+                                </button>
                             </td>
                         `;
                         tbody.appendChild(row);
@@ -272,22 +446,72 @@
 
         // 删除设备
         function deleteDevice(ip) {
-            if (confirm(`确定要删除设备 ${ip} 吗？`)) {
-                fetch(`/device/delete?ip=${encodeURIComponent(ip)}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: '确认删除?',
+                    text: `确定要删除设备 ${ip} 吗？`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#f44336',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '删除',
+                    cancelButtonText: '取消'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        doDeleteDevice(ip);
+                    }
+                });
+            } else {
+                if (confirm(`确定要删除设备 ${ip} 吗？`)) {
+                    doDeleteDevice(ip);
+                }
+            }
+        }
+
+        // 执行删除操作
+        function doDeleteDevice(ip) {
+            fetch(`/device/delete?ip=${encodeURIComponent(ip)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                title: '删除成功!',
+                                text: '删除设备映射成功',
+                                icon: 'success',
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => {
+                                loadDevices();
+                            });
+                        } else {
                             showMessage('删除设备映射成功', true);
                             loadDevices();
+                        }
+                    } else {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                title: '删除失败!',
+                                text: data.message,
+                                icon: 'error'
+                            });
                         } else {
                             showMessage(data.message, false);
                         }
-                    })
-                    .catch(error => {
-                        console.error('删除设备失败:', error);
+                    }
+                })
+                .catch(error => {
+                    console.error('删除设备失败:', error);
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: '删除失败!',
+                            text: '删除设备失败',
+                            icon: 'error'
+                        });
+                    } else {
                         showMessage('删除设备失败', false);
-                    });
-            }
+                    }
+                });
         }
 
         // 表单提交
@@ -300,21 +524,51 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showMessage('保存设备映射成功', true);
-                        document.getElementById('deviceForm').reset();
-                        loadDevices();
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                title: '保存成功!',
+                                text: '保存设备映射成功',
+                                icon: 'success',
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => {
+                                document.getElementById('deviceForm').reset();
+                                loadDevices();
+                            });
+                        } else {
+                            showMessage('保存设备映射成功', true);
+                            document.getElementById('deviceForm').reset();
+                            loadDevices();
+                        }
                     } else {
-                        showMessage(data.message, false);
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                title: '保存失败!',
+                                text: data.message,
+                                icon: 'error'
+                            });
+                        } else {
+                            showMessage(data.message, false);
+                        }
                     }
                 })
                 .catch(error => {
                     console.error('保存设备映射失败:', error);
-                    showMessage('保存设备映射失败', false);
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: '保存失败!',
+                            text: '保存设备映射失败',
+                            icon: 'error'
+                        });
+                    } else {
+                        showMessage('保存设备映射失败', false);
+                    }
                 });
         });
 
         // 页面加载时加载设备列表
         window.onload = loadDevices;
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>
