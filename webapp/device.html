@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备名称映射管理 - SNMP Trap Server</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            flex: 1;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background: #f9f9f9;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #da190b;
+        }
+
+        .table-section {
+            margin-top: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .header {
+            background: white;
+            padding: 10px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .nav a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: #666;
+        }
+
+        .nav a:hover {
+            color: #4CAF50;
+        }
+
+        .footer {
+            background: white;
+            padding: 10px 0;
+            text-align: center;
+            margin-top: 20px;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">SNMP Trap Server</div>
+            <div class="nav">
+                <a href="/">首页</a>
+                <a href="/device.html">设备管理</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>设备名称映射管理</h1>
+
+        <div class="form-section">
+            <h3>添加/修改设备映射</h3>
+            <form id="deviceForm">
+                <div class="form-group">
+                    <label for="ip">设备IP地址</label>
+                    <input type="text" id="ip" name="ip" placeholder="例如：192.168.1.1" required>
+                </div>
+                <div class="form-group">
+                    <label for="name">设备名称</label>
+                    <input type="text" id="name" name="name" placeholder="例如：核心交换机" required>
+                </div>
+                <button type="submit" class="btn-primary">保存</button>
+            </form>
+        </div>
+
+        <div class="table-section">
+            <h3>设备映射列表</h3>
+            <div id="message" class="message" style="display: none;"></div>
+            <table id="deviceTable">
+                <thead>
+                    <tr>
+                        <th>设备IP</th>
+                        <th>设备名称</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 设备列表将通过JavaScript动态添加 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 SNMP Trap Server | NetAxe</p>
+    </div>
+
+    <script>
+        // 显示消息
+        function showMessage(message, isSuccess) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.textContent = message;
+            msgDiv.className = 'message ' + (isSuccess ? 'success' : 'error');
+            msgDiv.style.display = 'block';
+            setTimeout(() => {
+                msgDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // 加载设备列表
+        function loadDevices() {
+            fetch('/device')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.querySelector('#deviceTable tbody');
+                    tbody.innerHTML = '';
+                    
+                    for (const [ip, name] of Object.entries(data)) {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${ip}</td>
+                            <td>${name}</td>
+                            <td>
+                                <button class="btn-primary" onclick="editDevice('${ip}', '${name}')">编辑</button>
+                                <button class="btn-danger" onclick="deleteDevice('${ip}')">删除</button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    }
+                })
+                .catch(error => {
+                    console.error('加载设备列表失败:', error);
+                    showMessage('加载设备列表失败', false);
+                });
+        }
+
+        // 编辑设备
+        function editDevice(ip, name) {
+            document.getElementById('ip').value = ip;
+            document.getElementById('name').value = name;
+        }
+
+        // 删除设备
+        function deleteDevice(ip) {
+            if (confirm(`确定要删除设备 ${ip} 吗？`)) {
+                fetch(`/device/delete?ip=${encodeURIComponent(ip)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showMessage('删除设备映射成功', true);
+                            loadDevices();
+                        } else {
+                            showMessage(data.message, false);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('删除设备失败:', error);
+                        showMessage('删除设备失败', false);
+                    });
+            }
+        }
+
+        // 表单提交
+        document.getElementById('deviceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const ip = document.getElementById('ip').value;
+            const name = document.getElementById('name').value;
+
+            fetch(`/device/add?ip=${encodeURIComponent(ip)}&name=${encodeURIComponent(name)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage('保存设备映射成功', true);
+                        document.getElementById('deviceForm').reset();
+                        loadDevices();
+                    } else {
+                        showMessage(data.message, false);
+                    }
+                })
+                .catch(error => {
+                    console.error('保存设备映射失败:', error);
+                    showMessage('保存设备映射失败', false);
+                });
+        });
+
+        // 页面加载时加载设备列表
+        window.onload = loadDevices;
+    </script>
+</body>
+</html>

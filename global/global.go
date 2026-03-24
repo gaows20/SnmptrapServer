@@ -7,13 +7,14 @@ import (
 )
 
 type PushMessage struct {
-	Message    []map[string]string `json:"message"`
-	Host       string              `json:"host"`
-	Version    string              `json:"version"`
-	Status     string              `json:"status"`
-	MessageID  string              `json:"message_id"`
-	Index      string              `json:"index"`
-	TrapStatus int                 `json:"trap_status"`
+	Message     []map[string]string `json:"message"`
+	Host        string              `json:"host"`
+	DeviceName  string              `json:"device_name"`
+	Version     string              `json:"version"`
+	Status      string              `json:"status"`
+	MessageID   string              `json:"message_id"`
+	Index       string              `json:"index"`
+	TrapStatus  int                 `json:"trap_status"`
 }
 
 var (

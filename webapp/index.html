@@ -382,6 +382,15 @@
                         <span class="stat-label">最后更新</span>
                     </div>
                 </div>
+                <div class="stat-item" style="background: linear-gradient(135deg, #9c27b0, #7b1fa2);">
+                    <i class="fas fa-cog"></i>
+                    <div class="stat-info">
+                        <a href="/device.html" style="color: white; text-decoration: none;">
+                            <span class="stat-value">设备管理</span>
+                        </a>
+                        <span class="stat-label">配置映射</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -395,7 +404,7 @@
                                 <i class="fas fa-router"></i>
                             </div>
                             <div>
-                                <div class="device-name">设备 {{$ip}}</div>
+                                <div class="device-name">设备 {{$ip}} {{with GetDeviceName $ip}} ({{.}}) {{end}}</div>
                                 <div class="device-ip">{{$ip}}</div>
                             </div>
                         </div>

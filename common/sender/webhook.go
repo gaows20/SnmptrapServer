@@ -2,6 +2,7 @@ package sender
 
 import (
 	"bytes"
+	"cqrcsnmpserver/device"
 	"cqrcsnmpserver/global"
 	"encoding/json"
 	"net/http"
@@ -16,6 +17,8 @@ type Message struct {
 }
 
 func PushWebhooks(host string, msg global.PushMessage, msg_info string) error {
+	// 添加设备名称
+	msg.DeviceName = device.GetDeviceName(host)
 	jsonStr, err := json.Marshal(msg)
 	if err != nil {
 		log.WithError(err).Error("序列化 webhook 消息失败")

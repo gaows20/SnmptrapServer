@@ -2,8 +2,10 @@ package apiserver
 
 import (
 	"cqrcsnmpserver/common/sender"
+	"cqrcsnmpserver/device"
 	"cqrcsnmpserver/global"
 	"cqrcsnmpserver/trap"
+	"encoding/json"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"html/template"
@@ -22,7 +24,7 @@ func handlerIndex(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(fmt.Sprintf("read index.html file error:[%s]", err))
 	}
-	t, err := template.New("index").Funcs(template.FuncMap{"Replace": Replace}).Parse(string(htmlByte))
+	t, err := template.New("index").Funcs(template.FuncMap{"Replace": Replace, "GetDeviceName": device.GetDeviceName}).Parse(string(htmlByte))
 	if err != nil {
 		log.Fatal(fmt.Sprintf("[parse index.html error:[%s]", err))
 	}
@@ -113,5 +115,61 @@ func handlerPduBatchDel(w http.ResponseWriter, r *http.Request){
 	sender.PushWebhooks(ip, recoverMsg, "")
 	
 	fmt.Fprintf(w, `{"success": true, "message": "成功删除 %d 条消息"}`, successCount)
+}
+
+// handlerDeviceMap 获取所有设备映射
+func handlerDeviceMap(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	devices := device.GetAllDevices()
+	jsonStr, err := json.Marshal(devices)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, `{"success": false, "message": "序列化设备映射失败"}`)
+		return
+	}
+	fmt.Fprint(w, string(jsonStr))
+}
+
+// handlerDeviceAdd 添加/修改设备映射
+func handlerDeviceAdd(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	r.ParseForm()
+	ip := r.Form.Get("ip")
+	name := r.Form.Get("name")
+	
+	if ip == "" || name == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, `{"success": false, "message": "IP和设备名称不能为空"}`)
+		return
+	}
+	
+	if err := device.SetDeviceName(ip, name); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, `{"success": false, "message": "保存设备映射失败：%s"}`, err)
+		return
+	}
+	
+	fmt.Fprint(w, `{"success": true, "message": "保存设备映射成功"}`)
+}
+
+// handlerDeviceDelete 删除设备映射
+func handlerDeviceDelete(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	r.ParseForm()
+	ip := r.Form.Get("ip")
+	
+	if ip == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, `{"success": false, "message": "IP不能为空"}`)
+		return
+	}
+	
+	if err := device.DeleteDevice(ip); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, `{"success": false, "message": "删除设备映射失败：%s"}`, err)
+		return
+	}
+	
+	fmt.Fprint(w, `{"success": true, "message": "删除设备映射成功"}`)
 }
 

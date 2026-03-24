@@ -26,9 +26,19 @@ func InitAppServer() (err error) {
 	)
 	//配置路由
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", handlerIndex)
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/" {
+			handlerIndex(w, r)
+		} else {
+			staticHandler := http.FileServer(http.Dir(global.GVA_CONFIG.ApiServer.ApiWebRoot))
+			staticHandler.ServeHTTP(w, r)
+		}
+	})
 	mux.HandleFunc("/delpdu", handlerPduDel)
 	mux.HandleFunc("/delpdu/batch", handlerPduBatchDel)
+	mux.HandleFunc("/device", handlerDeviceMap)
+	mux.HandleFunc("/device/add", handlerDeviceAdd)
+	mux.HandleFunc("/device/delete", handlerDeviceDelete)
 
 	//设置静态文件存储目录
 	staticDir := http.Dir(global.GVA_CONFIG.ApiServer.ApiWebRoot)

@@ -3,6 +3,7 @@ package main
 import (
 	"cqrcsnmpserver/apiserver"
 	"cqrcsnmpserver/core"
+	"cqrcsnmpserver/device"
 	"cqrcsnmpserver/global"
 	"cqrcsnmpserver/trap"
 	log "github.com/sirupsen/logrus"
@@ -12,6 +13,11 @@ import (
 func main() {
 	global.GVA_VP = core.Viper()
 	core.InitLog()
+
+	// 初始化设备映射
+	if err := device.Init(); err != nil {
+		log.WithError(err).Error("初始化设备映射失败")
+	}
 
 	// 启动api http服务
 	log.Info("start running api server")
