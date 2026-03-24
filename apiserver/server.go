@@ -28,6 +28,7 @@ func InitAppServer() (err error) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handlerIndex)
 	mux.HandleFunc("/delpdu", handlerPduDel)
+	mux.HandleFunc("/delpdu/batch", handlerPduBatchDel)
 
 	//设置静态文件存储目录
 	staticDir := http.Dir(global.GVA_CONFIG.ApiServer.ApiWebRoot)

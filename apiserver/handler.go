@@ -74,3 +74,44 @@ func handlerPduDel(w http.ResponseWriter, r *http.Request){
 	fmt.Fprint(w, `{"success": true, "message": "删除数据成功"}`)
 }
 
+func handlerPduBatchDel(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
+	r.ParseForm()
+	ip := r.Form.Get("ip")
+	indicesStr := r.Form.Get("indices")
+	
+	if ip == "" || indicesStr == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, `{"success": false, "message": "IP和indices参数不能为空"}`)
+		return
+	}
+	
+	indices := strings.Split(indicesStr, ",")
+	successCount := 0
+	
+	for _, indexStr := range indices {
+		index, err := strconv.ParseInt(strings.TrimSpace(indexStr), 10, 64)
+		if err != nil {
+			continue
+		}
+		if err := trap.DelItem(ip, index); err != nil {
+			log.WithError(err).WithFields(log.Fields{
+				"ip":    ip,
+				"index": index,
+			}).Error("批量删除消息失败")
+			continue
+		}
+		successCount++
+	}
+	
+	// 发送恢复通知
+	recoverMsg := global.PushMessage{
+		Host:       ip,
+		TrapStatus: 0,
+	}
+	sender.PushRecoverMetrics(ip)
+	sender.PushWebhooks(ip, recoverMsg, "")
+	
+	fmt.Fprintf(w, `{"success": true, "message": "成功删除 %d 条消息"}`, successCount)
+}
+

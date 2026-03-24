@@ -87,9 +87,9 @@ func runSnmpGet(target, community, oid string) (string, error) {
 	return res, nil
 }
 
-func genMsgHeader(hostip string, packet *g.SnmpPacket) (msg string) {
+func genMsgHeader(hostip string, packet *g.SnmpPacket, t time.Time) (msg string) {
 	msg = ""
-	msg = msg + fmt.Sprintf("%s CQRCB_SYSTEM %s\n", time.Now().Format("2006-01-02 15:04:05"), hostip)
+	msg = msg + fmt.Sprintf("%s CQRCB_SYSTEM %s\n", t.Format("2006-01-02 15:04:05"), hostip)
 	msg = msg + "PDU INFO:\n"
 	msg = msg + "  MESSAGE TYPE: SNMP TRAP \n"
 	msg = msg + fmt.Sprintf("  VERSION:  %s\n", packet.Version)
@@ -150,11 +150,170 @@ func parseSnmpPack(hostip string, list *linklist.List, packet *g.SnmpPacket) {
 
 	loc, err := time.LoadLocation("Asia/Shanghai")
 	if err != nil {
-		// 错误处理
+		// 时区加载失败，使用UTC时间并手动调整8小时
+		bjTime := time.Now().Add(8 * time.Hour)
+		msg := genMsgHeader(hostip, packet, bjTime)
+
+		pdus := make([]*TrapPDU, 0)
+
+		// 迭代解析每一个snmp报文
+		for _, v := range packet.Variables {
+
+			oidName := ""
+			oidDesc := ""
+			if name, desc, err := global_mib_tree.FindNodeName(v.Name); err != nil {
+				log.WithField("err", err).Error("没有找到OID解析")
+				oidName = v.Name
+			} else {
+				oidName = name
+				oidDesc = desc
+			}
+			switch v.Type {
+			case g.Integer:
+				// 额外解析字段，这里将把ifIndex字段翻译成ifName最后填入ParseValue
+				value := v.Value
+				parse_value := ""
+				parts := strings.Split(oidName, ".")
+				// 判断是否要二次snmp-get拿接口
+				index_v, ok := parseOIDlist[parts[0]]
+				if ok {
+					// fmt.Println(parts, "存在于 parseOIDlist 中")
+					get_value, err := runSnmpGet(hostip, global.GVA_CONFIG.TrapServer.ReadCommunity, index_v+parts[1])
+					if err != nil {
+						fmt.Printf("querySnmp() err: %v", err)
+						// log.Fatalf("querySnmp() err: %v", err)
+						parse_value = fmt.Sprintf("%v, community: %v", err, global.GVA_CONFIG.TrapServer.ReadCommunity)
+					} else {
+						parse_value = get_value
+					}
+				}
+				// 值映射 value map
+				speed_map_v, ok := valueMap[parts[0]]
+				if ok {
+					value = speed_map_v[fmt.Sprintf("%v", v.Value)]
+				}
+				// 速率转换判断
+				if handler, exists := SpeedValueMap[parts[0]]; exists {
+					parse_value = handler(fmt.Sprintf("%v", v.Value))
+				}
+				pdu := TrapPDU{
+					OID:        oidName,
+					RawOID:     v.Name,
+					Type:       v.Type,
+					Value:      value,
+					Ts:         bjTime.Format("2006-01-02 15:04:05"),
+					ParseValue: parse_value,
+					Desc:       oidDesc,
+				}
+				if drop := dropOID(pdu.RawOID, global.GVA_CONFIG.TrapServer.BlackMibMapFile); drop {
+					continue
+				}
+				pdus = append(pdus, &pdu)
+			case g.OctetString:
+				b := v.Value.([]byte)
+				parse_value := parseOctetStringToIP(v.Value.([]byte))
+				// log.WithField("OID", v.Name).WithField("string", fmt.Sprintf("%s", b)).WithField("Type", v.Type).Info()
+				pdu := TrapPDU{
+					OID:    oidName,
+					RawOID: v.Name,
+					Type:   v.Type,
+					// Value:  fmt.Sprintf("%s", b),
+					Value: string(b),
+					// Ts:    time.Now().Format("2006-01-02 15:04:05"),
+					Ts:         bjTime.Format("2006-01-02 15:04:05"),
+					ParseValue: parse_value,
+					Desc:       oidDesc,
+				}
+				if drop := dropOID(pdu.RawOID, global.GVA_CONFIG.TrapServer.BlackMibMapFile); drop {
+					continue
+				}
+				pdus = append(pdus, &pdu)
+			// 嵌套OID
+			case g.ObjectIdentifier:
+				obj_id := fmt.Sprintf("%s", v.Value)
+				obj_name := ""
+				oidDesc := ""
+				parse_value := ""
+				if name, desc, err := global_mib_tree.FindNodeName(obj_id); err != nil {
+					log.WithField("err", err).Error("trans oid to name error")
+					obj_name = obj_id
+				} else {
+					obj_name = name
+					oidDesc = desc
+				}
+				pdu := TrapPDU{
+					OID:    oidName,
+					RawOID: obj_id,
+					Type:   v.Type,
+					Value:  obj_name,
+					// Ts:    time.Now().Format("2006-01-02 :04:05"),
+					Ts:         bjTime.Format("2006-01-02 15:04:05"),
+					ParseValue: parse_value,
+					Desc:       oidDesc,
+				}
+				if drop := dropOID(pdu.RawOID, global.GVA_CONFIG.TrapServer.BlackMibMapFile); drop {
+					continue
+				}
+				pdus = append(pdus, &pdu)
+			default:
+				// 额外解析字段，这里将把ifIndex字段翻译成ifName最后填入ParseValue
+				value := v.Value
+				parse_value := ""
+				parts := strings.Split(oidName, ".")
+				index_v, ok := parseOIDlist[parts[0]]
+				if ok {
+					// fmt.Println(parts, "存在于 parseOIDlist 中")
+					get_value, err := runSnmpGet(hostip, global.GVA_CONFIG.TrapServer.ReadCommunity, index_v+parts[1])
+					if err != nil {
+						fmt.Printf("querySnmp() err: %v", err)
+						// log.Fatalf("querySnmp() err: %v", err)
+						parse_value = fmt.Sprintf("%v, community: %v", err, global.GVA_CONFIG.TrapServer.ReadCommunity)
+					} else {
+						parse_value = get_value
+					}
+				}
+				// 值映射 value map
+				map_v, ok := valueMap[parts[0]]
+				if ok {
+					value = map_v[fmt.Sprintf("%v", v.Value)]
+				}
+
+				pdu := TrapPDU{
+					OID:    oidName,
+					RawOID: v.Name,
+					Type:   v.Type,
+					Value:  value,
+					// Ts:    time.Now().Format("2006-01-02 :04:05"),
+					Ts:         bjTime.Format("2006-01-02 15:04:05"),
+					ParseValue: parse_value,
+					Desc:       oidDesc,
+				}
+				if drop := dropOID(pdu.RawOID, global.GVA_CONFIG.TrapServer.BlackMibMapFile); drop {
+					continue
+				}
+				pdus = append(pdus, &pdu)
+			}
+		}
+		tags := paesePdusToListMap(pdus)
+		for _, tag := range tags {
+			item := fmt.Sprintf("  SNMP-MIB::%v  value=%v: [%v]\n", tag["oid"], tag["type"], tag["value"])
+			msg = msg + item
+		}
+
+		list.Append(msg)
+		var push_msg global.PushMessage
+		push_msg.Host = hostip
+		push_msg.Message = tags
+		push_msg.Version = fmt.Sprintf("%v", packet.Version)
+		push_msg.Status = fmt.Sprintf("%v", packet.Error)
+		push_msg.MessageID = fmt.Sprintf("%v", packet.MsgID)
+		push_msg.Index = fmt.Sprintf("%v", packet.ErrorIndex)
+		push_msg.TrapStatus = 1
+		sender.Sends(hostip, push_msg, msg)
 		return
 	}
 	bjTime := time.Now().In(loc)
-	msg := genMsgHeader(hostip, packet)
+	msg := genMsgHeader(hostip, packet, bjTime)
 
 	pdus := make([]*TrapPDU, 0)
 

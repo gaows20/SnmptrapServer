@@ -85,18 +85,24 @@ func (l *List) RemoveAtIndex(index int64) (err error) {
 	return nil
 }
 
-//返回链表所有元素的切片
+//返回链表所有元素的切片（逆序，最新的消息在前面）
 func (l *List) GetListArray() (arr []interface{}, err error) {
 	arr = make([]interface{}, 0, 10)
 	if !l.IsEmpty() {
+		// 先收集所有元素
+		var temp []interface{}
 		cur := l.headNode
 		for {
-			arr = append(arr, cur.Data)
+			temp = append(temp, cur.Data)
 			if cur.Next != nil {
 				cur = cur.Next
 			} else {
 				break
 			}
+		}
+		// 反转切片，使最新的消息在前面
+		for i := len(temp) - 1; i >= 0; i-- {
+			arr = append(arr, temp[i])
 		}
 	}
 	return arr, nil
